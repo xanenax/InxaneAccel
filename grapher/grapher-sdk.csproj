@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <AssemblyName>InxaneAccel</AssemblyName>
+    <RootNamespace>grapher</RootNamespace>
+    <PlatformTarget>x64</PlatformTarget>
+    <UseWindowsForms>true</UseWindowsForms>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+    <ApplicationIcon>inxane.ico</ApplicationIcon>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System.Windows.Forms.DataVisualization" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath Condition="Exists('$(RawAccelRuntimeDir)\Newtonsoft.Json.dll')">$(RawAccelRuntimeDir)\Newtonsoft.Json.dll</HintPath>
+      <HintPath Condition="!Exists('$(RawAccelRuntimeDir)\Newtonsoft.Json.dll') And Exists('..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll')">..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="wrapper">
+      <HintPath Condition="Exists('$(RawAccelRuntimeDir)\wrapper.dll')">$(RawAccelRuntimeDir)\wrapper.dll</HintPath>
+      <HintPath Condition="!Exists('$(RawAccelRuntimeDir)\wrapper.dll') And Exists('..\x64\Release\wrapper.dll')">..\x64\Release\wrapper.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="grapher.AboutBox.resources">
+      <LogicalName>grapher.AboutBox.resources</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="grapher.RawAcceleration.resources">
+      <LogicalName>grapher.RawAcceleration.resources</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="grapher.Properties.Resources.resources">
+      <LogicalName>grapher.Properties.Resources.resources</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>

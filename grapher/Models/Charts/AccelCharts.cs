@@ -158,7 +158,6 @@ namespace grapher
             velocityChart.SetTop(sensitivityChart.Height + Constants.ChartSeparationVertical);
             gainChart.SetHeight(sensitivityChart.Height);
             gainChart.SetTop(velocityChart.Top + velocityChart.Height + Constants.ChartSeparationVertical);
-            gainChart.SetLegendPosition(ChartXY.GainLegendPosition);
         }
 
         private void OnEnableClick(object sender, EventArgs e)
@@ -189,12 +188,22 @@ namespace grapher
 
         private void ShowVelocityAndGain()
         {
+            ChartState.SensitivityChart.ChartX.Margin = new Padding(0, 0, 0, 5);
+            ChartState.SensitivityChart.ChartY.Margin = new Padding(0, 0, 0, 5);
+            ChartState.VelocityChart.ChartX.Margin = new Padding(0, 3, 0, 5);
+            ChartState.VelocityChart.ChartY.Margin = new Padding(0, 3, 0, 5);
+            ChartState.GainChart.ChartX.Margin = new Padding(0, 3, 0, 0);
+            ChartState.GainChart.ChartY.Margin = new Padding(0, 3, 0, 0);
             ChartState.ShowVelocityAndGain();
+            ContainingForm?.SetVelocityAndGainMode(true);
         }
 
         private void HideVelocityAndGain()
         {
+            ChartState.SensitivityChart.ChartX.Margin = new Padding(0);
+            ChartState.SensitivityChart.ChartY.Margin = new Padding(0);
             ChartState.HideVelocityAndGain();
+            ContainingForm?.SetVelocityAndGainMode(false);
         }
 
         private void AlignWriteButton()

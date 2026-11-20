@@ -1,7 +1,10 @@
 ﻿using grapher.Models.Devices;
 using grapher.Models.Serialized;
+using grapher.Models.Theming;
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Text;
 using System.Windows.Forms;
 
 namespace grapher
@@ -14,162 +17,264 @@ namespace grapher
             Manager = sm;
             defaultConfig = Manager.UserConfig.defaultDeviceConfig;
 
-            var columns = 3;
-            var rows = 9;
-            var tablePanel = new TableLayoutPanel
+            SuspendLayout();
+
+            Name = "DeviceMenuForm";
+            Text = "Devices";
+            MaximizeBox = false;
+            MinimizeBox = false;
+            FormBorderStyle = FormBorderStyle.None;
+            StartPosition = FormStartPosition.CenterParent;
+            AutoScaleDimensions = new SizeF(6F, 13F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(580, 364);
+
+            var titleBar = Theme.CreateBorderlessTitleBar(this, "Devices", includeMinimize: false, showAppLogo: false);
+
+            DefaultDisableCheck = new CheckBox
             {
-                Dock = DockStyle.Fill,
-                ColumnCount = columns,
-                RowCount = rows
+                Text = "Disable all devices by default",
+                AutoSize = false,
+                Location = new Point(14, 48),
+                Size = new Size(260, 22),
+                Checked = defaultConfig.disable,
             };
 
-            SuspendLayout();
-            tablePanel.SuspendLayout();
+            var listCard = new Panel
+            {
+                Name = "deviceListCard",
+                Location = new Point(14, 76),
+                Size = new Size(256, 228),
+            };
+            listCard.Paint += (s, e) =>
+            {
+                var g = e.Graphics;
+                var scheme = Theme.CurrentScheme ?? ColorScheme.MacOSDarkTheme;
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                bool isDark = scheme.Background.GetBrightness() < 0.5f;
+                g.Clear(scheme.Background);
+                Theme.DrawBentoCard(g, new RectangleF(0.5f, 0.5f, listCard.Width - 1.5f, listCard.Height - 1.5f), 10f, isDark);
+            };
 
-            Label MakeConfigLabel(string text)
+            DeviceSelect = new ListBox
+            {
+                Location = new Point(6, 6),
+                Size = new Size(244, 216),
+                BorderStyle = BorderStyle.None,
+                IntegralHeight = false,
+                DrawMode = DrawMode.OwnerDrawFixed,
+                ItemHeight = 28,
+            };
+            DeviceSelect.DrawItem += DeviceSelect_DrawItem;
+            listCard.Controls.Add(DeviceSelect);
+
+            var detailCard = new Panel
+            {
+                Name = "deviceDetailCard",
+                Location = new Point(282, 76),
+                Size = new Size(284, 228),
+            };
+            detailCard.Paint += (s, e) =>
+            {
+                var g = e.Graphics;
+                var scheme = Theme.CurrentScheme ?? ColorScheme.MacOSDarkTheme;
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                bool isDark = scheme.Background.GetBrightness() < 0.5f;
+                g.Clear(scheme.Background);
+                Theme.DrawBentoCard(g, new RectangleF(0.5f, 0.5f, detailCard.Width - 1.5f, detailCard.Height - 1.5f), 10f, isDark);
+
+                if (AnySelected)
+                {
+                    using (var divPen = new Pen(scheme.ControlBorder, 1f))
+                    {
+                        g.DrawLine(divPen, 14f, 58f, detailCard.Width - 14f, 58f);
+                    }
+
+                    var prevSmooth = g.SmoothingMode;
+                    g.SmoothingMode = SmoothingMode.Default;
+                    foreach (Control input in new Control[] { DpiInput, RateInput })
+                    {
+                        if (input == null || !input.Visible) continue;
+                        bool unavailable = !input.Enabled;
+                        bool isFocused = !unavailable && input.ContainsFocus;
+                        bool isHovered = !unavailable && input.Visible &&
+                            input.RectangleToScreen(input.ClientRectangle).Contains(Cursor.Position);
+                        Color lineCol;
+                        int lineH = 1;
+                        if (isFocused)
+                        {
+                            lineCol = scheme.Primary;
+                            lineH = 2;
+                        }
+                        else if (isHovered)
+                        {
+                            lineCol = ColorScheme.Blend(scheme.Primary, scheme.OnBackground, 0.35f);
+                        }
+                        else if (unavailable)
+                        {
+                            lineCol = ColorScheme.Blend(scheme.ControlBorder, scheme.Surface, 0.55f);
+                        }
+                        else
+                        {
+                            lineCol = ColorScheme.Blend(scheme.ControlBorder, scheme.OnField, 0.25f);
+                        }
+
+                        int lineX = input.Left;
+                        int lineW = input.Width;
+                        int lineY = input.Bottom + 3 - (lineH - 1);
+                        using (var lineBrush = new SolidBrush(lineCol))
+                        {
+                            g.FillRectangle(lineBrush, lineX, lineY, lineW, lineH);
+                        }
+                    }
+                    g.SmoothingMode = prevSmooth;
+                }
+            };
+
+            EmptyHintLabel = new Label
+            {
+                Name = "DeviceEmptyHintLabel",
+                Text = "Select a device on the left to inspect its hardware ID or override defaults.",
+                AutoSize = false,
+                Location = new Point(20, 20),
+                Size = new Size(244, 188),
+                TextAlign = ContentAlignment.MiddleCenter,
+            };
+
+            IdPanel = new Panel
+            {
+                Name = "deviceIdPanel",
+                Location = new Point(14, 14),
+                Size = new Size(256, 36),
+            };
+
+            IdText = new TextBox
+            {
+                Name = "deviceIdText",
+                ReadOnly = true,
+                BorderStyle = BorderStyle.None,
+                TabStop = false,
+                TextAlign = HorizontalAlignment.Left,
+                Multiline = true,
+                WordWrap = true,
+                Location = new Point(0, 2),
+                Size = new Size(256, 32),
+            };
+            IdPanel.Controls.Add(IdText);
+
+            Label MakeConfigLabel(string text, int y)
             {
                 return new Label
                 {
                     Text = text,
-                    Anchor = AnchorStyles.Left,
-                    AutoSize = true,
+                    AutoSize = false,
+                    Location = new Point(14, y),
+                    Size = new Size(132, 24),
+                    TextAlign = ContentAlignment.MiddleLeft,
                 };
             }
 
-            DpiLabel = MakeConfigLabel("DPI:");
-            RateLabel = MakeConfigLabel("Polling rate:");
-            DisableLabel = MakeConfigLabel("Disable:");
-            OverrideLabel = MakeConfigLabel("Override defaults:");
+            OverrideLabel = MakeConfigLabel("Override defaults", 70);
+            DisableLabel = MakeConfigLabel("Disable device", 104);
+            DpiLabel = MakeConfigLabel("DPI", 140);
+            RateLabel = MakeConfigLabel("Polling rate", 176);
 
-            var maxLabel = OverrideLabel;
-            tablePanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 2));
-            tablePanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, maxLabel.PreferredSize.Width + maxLabel.Margin.Left + maxLabel.Margin.Right));
-            tablePanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 1));
-
-            var middleRowCount = rows - 2;
-            tablePanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            for (int i = 0; i < middleRowCount; i++)
+            CheckBox MakeCheck(int y)
             {
-                tablePanel.RowStyles.Add(new RowStyle(SizeType.Percent, 1));
+                return new CheckBox
+                {
+                    Text = string.Empty,
+                    AutoSize = false,
+                    Location = new Point(153, y + 2),
+                    Size = new Size(22, 20),
+                };
             }
-            tablePanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 
-            var topPanel = new FlowLayoutPanel
+            NumericUpDown MakeNumericInput(int y, int val = 0, int min = 0, int max = 999999)
             {
-                AutoSize = true,
-            };
+                var num = new NumericUpDown
+                {
+                    Value = val,
+                    Minimum = min,
+                    Maximum = max,
+                    TextAlign = HorizontalAlignment.Center,
+                    BorderStyle = BorderStyle.None,
+                    Location = new Point(158, y + 4),
+                    Size = new Size(62, 16),
+                };
+                EventHandler syncVisual = (s, ev) =>
+                {
+                    var scheme = Theme.CurrentScheme ?? ColorScheme.MacOSDarkTheme;
+                    num.BackColor = scheme.Surface;
+                    num.ForeColor = num.Enabled
+                        ? ColorScheme.Blend(scheme.OnBackground, scheme.Surface, 0.10f)
+                        : scheme.OnDisabledControl;
+                    if (num.Controls.Count > 0)
+                    {
+                        num.Controls[0].Invalidate();
+                    }
+                    detailCard.Invalidate();
+                };
+                num.EnabledChanged += syncVisual;
+                num.Enter += syncVisual;
+                num.Leave += syncVisual;
+                num.MouseEnter += syncVisual;
+                num.MouseLeave += syncVisual;
+                foreach (Control child in num.Controls)
+                {
+                    child.Enter += syncVisual;
+                    child.Leave += syncVisual;
+                    child.MouseEnter += syncVisual;
+                    child.MouseLeave += syncVisual;
+                }
+                return num;
+            }
 
-            DefaultDisableCheck = new CheckBox
+            OverrideCheck = MakeCheck(70);
+            DisableCheck = MakeCheck(104);
+            DpiInput = MakeNumericInput(140);
+            RateInput = MakeNumericInput(176);
+
+            detailCard.Controls.AddRange(new Control[]
             {
-                Text = "Disable by default",
-                AutoSize = true,
-                Checked = defaultConfig.disable,
-            };
-
-            topPanel.Controls.Add(DefaultDisableCheck);
-
-            tablePanel.Controls.Add(topPanel, 0, 0);
-            tablePanel.SetColumnSpan(topPanel, columns);
-
-            var bottomPanel = new FlowLayoutPanel
-            {
-                AutoSize = true,
-                Anchor = AnchorStyles.Right | AnchorStyles.Bottom,
-            };
+                EmptyHintLabel,
+                IdPanel,
+                OverrideLabel,
+                OverrideCheck,
+                DisableLabel,
+                DisableCheck,
+                DpiLabel,
+                DpiInput,
+                RateLabel,
+                RateInput,
+            });
 
             var applyButton = new Button
             {
                 Text = "Apply",
                 DialogResult = DialogResult.OK,
+                Location = new Point(374, 318),
+                Size = new Size(92, 32),
             };
 
-            bottomPanel.Controls.AddRange(new Control[] {
+            var cancelButton = new Button
+            {
+                Text = "Cancel",
+                DialogResult = DialogResult.Cancel,
+                Location = new Point(474, 318),
+                Size = new Size(92, 32),
+            };
+
+            Controls.AddRange(new Control[]
+            {
+                DefaultDisableCheck,
+                listCard,
+                detailCard,
                 applyButton,
-                new Button
-                {
-                    Text = "Cancel",
-                    DialogResult = DialogResult.Cancel,
-                },
+                cancelButton,
+                titleBar,
             });
-
-            tablePanel.Controls.Add(bottomPanel, 0, rows - 1);
-            tablePanel.SetColumnSpan(bottomPanel, columns);
-
-            IdPanel = new Panel
-            {
-                Dock = DockStyle.Fill,
-            };
-
-            IdText = new TextBox
-            {
-                ReadOnly = true,
-                BorderStyle = BorderStyle.None,
-                BackColor = this.BackColor,
-                TabStop = false,
-                TextAlign = HorizontalAlignment.Center,
-                Dock = DockStyle.Fill,
-            };
-
-            IdPanel.Controls.Add(IdText);
-            IdPanel.Controls.Add(new Label
-            {
-                // divider
-                Height = 2,
-                BorderStyle = BorderStyle.Fixed3D,
-                AutoSize = false,
-                Text = string.Empty,
-                Dock = DockStyle.Bottom,
-            });
-
-            tablePanel.Controls.Add(IdPanel, 1, 1);
-            tablePanel.SetColumnSpan(IdPanel, 2);
-
-            NumericUpDown MakeNumericInput(int val = 0, int min = 0, int max = 999999)
-            {
-                return new NumericUpDown
-                {
-                    Value = val,
-                    Minimum = min,
-                    Maximum = max,
-                    Dock = DockStyle.Fill,
-                    Anchor = AnchorStyles.Left,
-                    AutoSize = true,
-                };
-            }
-
-            CheckBox MakeCheck()
-            {
-                return new CheckBox
-                {
-                    Text = string.Empty,
-                    AutoSize = true,
-                    Anchor = AnchorStyles.Left,
-                };
-            }
-
-            DpiInput = MakeNumericInput();
-            RateInput = MakeNumericInput();
-            DisableCheck = MakeCheck();
-            OverrideCheck = MakeCheck();
-
-            tablePanel.Controls.Add(OverrideLabel, 1, 2);
-            tablePanel.Controls.Add(OverrideCheck, 2, 2);
-            tablePanel.Controls.Add(DisableLabel, 1, 3);
-            tablePanel.Controls.Add(DisableCheck, 2, 3);
-            tablePanel.Controls.Add(DpiLabel, 1, 5);
-            tablePanel.Controls.Add(DpiInput, 2, 5);
-            tablePanel.Controls.Add(RateLabel, 1, 6);
-            tablePanel.Controls.Add(RateInput, 2, 6);
-
-            DeviceSelect = new ListBox
-            {
-                Dock = DockStyle.Fill,
-                IntegralHeight = false,
-                HorizontalScrollbar = true
-            };
-
-            tablePanel.Controls.Add(DeviceSelect, 0, 1);
-            tablePanel.SetRowSpan(DeviceSelect, middleRowCount);
+            titleBar.SendToBack();
 
             ResetDataAndSelection();
             SetEnabled(false);
@@ -195,21 +300,54 @@ namespace grapher
             toolTip.SetToolTip(DpiInput, dpiTip);
             toolTip.SetToolTip(DpiLabel, dpiTip);
 
-
-            Name = "DeviceMenuForm";
-            Text = "Devices";
-            MaximizeBox = false;
-            MinimizeBox = false;
-            FormBorderStyle = FormBorderStyle.FixedDialog;
-            StartPosition = FormStartPosition.CenterParent;
-            AutoScaleDimensions = new SizeF(6F, 13F);
-            AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(500, 300);
-
-            Controls.Add(tablePanel);
-
-            tablePanel.ResumeLayout(false);
+            AcceptButton = applyButton;
+            CancelButton = cancelButton;
             ResumeLayout(false);
+        }
+
+        private void DeviceSelect_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            var scheme = Theme.CurrentScheme ?? ColorScheme.MacOSDarkTheme;
+            using (var bg = new SolidBrush(scheme.Surface))
+            {
+                e.Graphics.FillRectangle(bg, e.Bounds);
+            }
+
+            if (e.Index < 0 || e.Index >= DeviceSelect.Items.Count)
+            {
+                return;
+            }
+
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            e.Graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+
+            bool isDark = scheme.Background.GetBrightness() < 0.5f;
+            bool selected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
+            if (selected)
+            {
+                var pillRect = new RectangleF(e.Bounds.X + 2f, e.Bounds.Y + 1.5f, e.Bounds.Width - 4f, e.Bounds.Height - 3f);
+                Color fill = Color.FromArgb(isDark ? 36 : 26, scheme.Primary);
+                Color borderCol = Color.FromArgb(isDark ? 95 : 85, scheme.Primary);
+                using (var path = Theme.CreateRoundedRectPath(pillRect, 5f))
+                using (var brush = new SolidBrush(fill))
+                using (var border = new Pen(borderCol, 1f))
+                {
+                    e.Graphics.FillPath(brush, path);
+                    e.Graphics.DrawPath(border, path);
+                }
+            }
+
+            string text = DeviceSelect.Items[e.Index]?.ToString() ?? string.Empty;
+            var textRect = new Rectangle(e.Bounds.X + 10, e.Bounds.Y, Math.Max(10, e.Bounds.Width - 18), e.Bounds.Height);
+            Color idleColor = ColorScheme.Blend(scheme.OnField, scheme.Surface, 0.25f);
+            Color textColor = selected ? scheme.OnBackground : idleColor;
+            TextRenderer.DrawText(
+                e.Graphics,
+                text,
+                DeviceSelect.Font,
+                textRect,
+                textColor,
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
         }
 
         #endregion Constructors
@@ -241,6 +379,8 @@ namespace grapher
         private ListBox DeviceSelect { get; }
 
         private CheckBox DefaultDisableCheck { get; }
+
+        private Label EmptyHintLabel { get; }
 
         private TextBox IdText { get; }
         private Panel IdPanel { get; }
@@ -294,6 +434,7 @@ namespace grapher
 
         private void SetVisible(bool visible)
         {
+            if (EmptyHintLabel != null) EmptyHintLabel.Visible = !visible;
             IdPanel.Visible = visible;
             OverrideLabel.Visible = visible;
             OverrideCheck.Visible = visible;
@@ -383,6 +524,7 @@ namespace grapher
             LastSelectedIndex = DeviceSelect.SelectedIndex;
 
             SetVisible(AnySelected);
+            DpiInput?.Parent?.Invalidate();
         }
 
         private void OnDeviceChange(object sender, EventArgs e)

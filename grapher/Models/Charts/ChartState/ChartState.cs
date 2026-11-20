@@ -91,8 +91,8 @@ namespace grapher.Models.Charts.ChartState
         public void HideVelocityAndGain()
         {
             ChartContainer.RowCount = Constants.RegularRowCount;
+            ChartContainer.RowStyles[0].SizeType = SizeType.Percent;
             ChartContainer.RowStyles[0].Height = Constants.RegularRowHeight;
-            SensitivityChart.SetHeight(Constants.SensitivityChartAloneHeight);
             VelocityChart.Hide();
             GainChart.Hide();
         }
@@ -115,6 +115,7 @@ namespace grapher.Models.Charts.ChartState
                 ChartXY.SetLogarithmic(SensitivityChart.ChartY);
                 ChartXY.SetLogarithmic(GainChart.ChartY);
             }
+            else
             {
                 ChartXY.SetStandard(SensitivityChart.ChartY);
                 ChartXY.SetStandard(GainChart.ChartY);

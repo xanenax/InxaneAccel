@@ -38,13 +38,13 @@ namespace grapher.Common
         public const int OptionLabelBoxSeperation = 10;
 
         /// <summary> Default horizontal separation between an option's label and box, in pixels. </summary>
-        public const int OptionVerticalSeperation = 4;
+        public const int OptionVerticalSeperation = 3;
 
         /// <summary> Horizontal separation between left side of single dropdown and left side of labels beneath dropdown </summary>
         public const int DropDownLeftSeparation = 10;
 
         /// <summary> Height of sensitivity chart when displayed alone. </summary>
-        public const int SensitivityChartAloneHeight = 510;
+        public const int SensitivityChartAloneHeight = 402;
 
         /// <summary> Height of sensitivity chart when displayed alongside Velocity and Gain charts. </summary>
         public const int SensitivityChartTogetherHeight = 328;
@@ -62,10 +62,10 @@ namespace grapher.Common
         public const int NarrowChartLeft = 482;
 
         /// <summary> Vertical placement of write button above bottom of sensitivity graph </summary>
-        public const int ButtonVerticalOffset = 60;
+        public const int ButtonVerticalOffset = 50;
 
         /// <summary> Vertical placement of directionality panel below top of containing form </summary>
-        public const int DirectionalityVerticalOffset = 315;
+        public const int DirectionalityVerticalOffset = 370;
 
         /// <summary> Padding between directionality title and containing panel </summary>
         public const int DirectionalityTitlePad = 4;
@@ -129,19 +129,19 @@ namespace grapher.Common
         public const string GuiConfigFileName = ".config";
 
         /// <summary> Text to directionality panel title when panel is closed. </summary>
-        public const string DirectionalityTitleClosed = "Anisotropy \u25BC";
+        public const string DirectionalityTitleClosed = "Anisotropy";
 
         /// <summary> Text to directionality panel title when panel is open. </summary>
-        public const string DirectionalityTitleOpen = "Anisotropy \u25B2";
+        public const string DirectionalityTitleOpen = "Anisotropy";
 
         /// <summary> Style used by System.Double.Parse </summary>
         public const NumberStyles FloatStyle = NumberStyles.Float | NumberStyles.AllowThousands;
 
         /// <summary> Font Size for Chart Titles </summary>
-        public const float ChartTitleFontSize = 15;
+        public const float ChartTitleFontSize = 12;
 
         /// <summary> Font Size for Chart Axis Titles </summary>
-        public const float ChartAxisFontSize = 12;
+        public const float ChartAxisFontSize = 10;
 
         /// <summary> Line Width For Series data on chart </summary>
         public const int ChartSeriesLineWidth = 3;

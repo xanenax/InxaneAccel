@@ -12,11 +12,11 @@ namespace grapher
         [STAThread]
         static void Main()
         {
-            var mutex = new System.Threading.Mutex(true, "RawAccelGrapher", out bool result);
+            var mutex = new System.Threading.Mutex(true, "InxaneAccelGrapher", out bool result);
 
             if (!result)
             {
-                MessageBox.Show("Another instance of the Raw Accel Grapher is already running.");
+                MessageBox.Show("Another instance of Inxane Accel is already running.");
                 return;
             }
 

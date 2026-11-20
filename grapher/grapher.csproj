@@ -7,7 +7,7 @@
     <ProjectGuid>{EF67F71F-ABF5-4760-B50D-D1B9836DF01C}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>grapher</RootNamespace>
-    <AssemblyName>rawaccel</AssemblyName>
+    <AssemblyName>InxaneAccel</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -51,7 +51,7 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>mouse.ico</ApplicationIcon>
+    <ApplicationIcon>inxane.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM64'">
     <DebugSymbols>true</DebugSymbols>
@@ -158,11 +158,13 @@
     <Compile Include="Models\Options\Cap\CapTypeOptions.cs" />
     <Compile Include="Models\Options\CheckBoxOption.cs" />
     <Compile Include="Models\Options\ComboBoxOptionsBase.cs" />
+    <Compile Include="Models\Options\CurvePresetManager.cs" />
     <Compile Include="Models\Options\Directionality\DirectionalityOptions.cs" />
     <Compile Include="Models\Options\LockableOption.cs" />
     <Compile Include="Models\Options\LUT\LutApplyOptions.cs" />
     <Compile Include="Models\Options\IOption.cs" />
     <Compile Include="Models\Options\LUT\LUTPanelOptions.cs" />
+    <Compile Include="Models\Options\LUT\LUTPointOption.cs" />
     <Compile Include="Models\Options\OffsetOptions.cs" />
     <Compile Include="Models\Options\Option.cs" />
     <Compile Include="Layouts\OptionLayout.cs" />
@@ -242,7 +244,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="mouse.ico" />
+    <Content Include="inxane.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

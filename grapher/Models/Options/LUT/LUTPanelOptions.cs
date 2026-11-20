@@ -10,8 +10,8 @@ namespace grapher.Models.Options.LUT
 {
     public class LUTPanelOptions : OptionBase
     {
-        public const int PanelPadding = 5;
-        public const int PanelHeight = 100;
+        public const int PanelPadding = 8;
+        public const int PanelHeight = 79;
 
         public LUTPanelOptions(RichTextBox pointsTextBox, RichTextBox activeValuesTextBox)
         {
@@ -83,7 +83,7 @@ namespace grapher.Models.Options.LUT
             }
             set
             {
-                var panelWidth = value / 2 - PanelPadding;
+                var panelWidth = (value - PanelPadding) / 2;
                 PointsTextBox.Width = panelWidth;
                 ActiveValuesTextBox.Width = panelWidth;
                 AlignActivePanelToPointsTextBox();
@@ -183,7 +183,7 @@ namespace grapher.Models.Options.LUT
 
                 try
                 {
-                    x = float.Parse(pointSplit[0]);
+                    x = float.Parse(pointSplit[0], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture);
                 }
                 catch (Exception ex)
                 {
@@ -204,7 +204,7 @@ namespace grapher.Models.Options.LUT
 
                 try
                 {
-                    y = float.Parse(pointSplit[1]);
+                    y = float.Parse(pointSplit[1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture);
                 }
                 catch (Exception ex)
                 {
@@ -236,7 +236,7 @@ namespace grapher.Models.Options.LUT
             for(int i = 0; i < length; i++)
             {
                 var point = points.ElementAt(i);
-                builder.AppendLine($"{point.x},{point.y};");
+                builder.AppendLine(string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0},{1};", point.x, point.y));
             }
 
             return builder.ToString();
@@ -249,7 +249,7 @@ namespace grapher.Models.Options.LUT
             for(int i = 0; i < length; i++)
             {
                 var point = points.ElementAt(i);
-                builder.Append($"{point.x},{point.y};");
+                builder.Append(string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0},{1};", point.x, point.y));
             }
 
             return builder.ToString();

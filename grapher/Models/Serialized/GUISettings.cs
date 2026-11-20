@@ -38,8 +38,15 @@ namespace grapher.Models.Serialized
             Order = 6,
             DefaultValueHandling = DefaultValueHandling.Populate
         )]
-        [DefaultValue("Light Theme")]
+        [DefaultValue("macOS Dark")]
         public string CurrentColorScheme { get; set; }
+
+        [JsonProperty(
+            Order = 7,
+            DefaultValueHandling = DefaultValueHandling.Populate
+        )]
+        [DefaultValue("Indigo")]
+        public string CurrentAccentColor { get; set; } = "Indigo";
 
         #endregion Properties
 
@@ -64,7 +71,8 @@ namespace grapher.Models.Serialized
                 ShowLastMouseMove == other.ShowLastMouseMove &&
                 ShowVelocityAndGain == other.ShowVelocityAndGain &&
                 AutoWriteToDriverOnStartup == other.AutoWriteToDriverOnStartup &&
-                CurrentColorScheme == other.CurrentColorScheme;
+                CurrentColorScheme == other.CurrentColorScheme &&
+                CurrentAccentColor == other.CurrentAccentColor;
         }
 
         public override int GetHashCode()
@@ -74,7 +82,8 @@ namespace grapher.Models.Serialized
                 ShowLastMouseMove.GetHashCode() ^
                 ShowVelocityAndGain.GetHashCode() ^
                 AutoWriteToDriverOnStartup.GetHashCode() ^
-                CurrentColorScheme.GetHashCode();
+                (CurrentColorScheme ?? string.Empty).GetHashCode() ^
+                (CurrentAccentColor ?? string.Empty).GetHashCode();
         }
 
         public void Save()

@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
+﻿using grapher.Models.Theming;
+using System;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace grapher
@@ -15,10 +10,21 @@ namespace grapher
         public MessageDialog(string message, string title = "")
         {
             InitializeComponent();
-            Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
-            Text = title;
-            messageLabel.Text = message;
-        }
+            FormBorderStyle = FormBorderStyle.None;
+            AutoSize = false;
+            var header = Theme.CreateBorderlessTitleBar(this, string.IsNullOrWhiteSpace(title) ? "Notice" : title, includeMinimize: false);
+            Controls.Add(header);
+            header.SendToBack();
 
+            tableLayoutPanel.Dock = DockStyle.Fill;
+            tableLayoutPanel.Padding = new Padding(16, 12, 16, 14);
+            Text = title;
+            messageLabel.MaximumSize = new Size(340, 0);
+            messageLabel.Text = message;
+
+            int desiredW = Math.Max(280, Math.Min(390, messageLabel.PreferredWidth + 48));
+            int desiredH = Math.Max(140, header.Height + messageLabel.PreferredHeight + 76);
+            ClientSize = new Size(desiredW, desiredH);
+        }
     }
 }

@@ -17,6 +17,7 @@ namespace grapher
             this.Text = String.Format("About {0}", AssemblyTitle);
             this.labelVersion.Text = String.Format("GUI Version {0}", AssemblyVersion);
             this.labelDriverVersion.Text = String.Format("Driver Version {0}", driver.ToString());
+            this.logoPictureBox.Image = grapher.Models.Theming.Theme.CreateInxaneLogoBitmap(128);
         }
 
         #region Assembly Attribute Accessors

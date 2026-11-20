@@ -32,12 +32,16 @@ namespace grapher.Models.Theming.IO
         private void CreateDefaultThemes()
         {
             // Save all the "preset" themes
+            var macOSDarkTheme = ColorScheme.MacOSDarkTheme;
+            var appleLightTheme = ColorScheme.AppleLightTheme;
             var lightTheme = ColorScheme.LightTheme;
             var lightStreamerTheme = ColorScheme.LightStreamerTheme;
             var darkTheme = ColorScheme.DarkTheme;
             var darkStreamerTheme = ColorScheme.DarkStreamerTheme;
             var accentedDarkTheme = ColorScheme.AccentedDarkTheme;
 
+            SaveScheme(macOSDarkTheme, "MacOSDark");
+            SaveScheme(appleLightTheme, "AppleLight");
             SaveScheme(lightTheme, "LightTheme");
             SaveScheme(lightStreamerTheme, "LightStreamerTheme");
             SaveScheme(darkTheme, "DarkTheme");

@@ -17,9 +17,12 @@ namespace grapher.Models.Options
 
             Label = label;
             Label.AutoSize = false;
-            Label.Width = 50;
+            Label.Width = 54;
+            Label.Height = dropdown.Height;
+            Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 
             ActiveValueLabel = activeValueLabel;
+            ActiveValueLabel.Height = dropdown.Height;
         }
 
         #endregion Constructors
@@ -71,7 +74,7 @@ namespace grapher.Models.Options
             {
                 OptionsDropdown.Top = value;
                 Label.Top = (OptionsDropdown.Height - Label.Height) / 2 + OptionsDropdown.Top;
-                ActiveValueLabel.Top = value;
+                ActiveValueLabel.Top = OptionsDropdown.Top + System.Math.Max(0, (OptionsDropdown.Height - ActiveValueLabel.Height) / 2);
             }
         }
 

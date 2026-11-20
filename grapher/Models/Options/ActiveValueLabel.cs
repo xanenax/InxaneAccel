@@ -142,8 +142,12 @@ namespace grapher.Models.Options
 
         public void Align()
         {
+            CenteringLabel.AutoSize = false;
+            if (CenteringLabel.Width < 64) CenteringLabel.Width = 64;
+            if (CenteringLabel.Height < 18) CenteringLabel.Height = 18;
             Left = CenteringLabel.Left;
             Width = CenteringLabel.Width;
+            if (ValueLabel.Height < 18) ValueLabel.Height = 18;
         }
 
         #endregion Methods

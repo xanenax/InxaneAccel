@@ -281,7 +281,7 @@ namespace grapher
             // 
             // optionsPanel
             // 
-            this.optionsPanel.AutoSize = true;
+            this.optionsPanel.AutoSize = false;
             this.optionsPanel.Controls.Add(this.OutCapActiveYLabelPower);
             this.optionsPanel.Controls.Add(this.InCapActiveYLabelPower);
             this.optionsPanel.Controls.Add(this.OutCapActiveXLabelPower);
@@ -438,11 +438,12 @@ namespace grapher
             this.optionsPanel.Controls.Add(this.sensitivityBoxX);
             this.optionsPanel.Controls.Add(this.accelTypeDropX);
             this.optionsPanel.Controls.Add(this.menuStrip1);
-            this.optionsPanel.Dock = System.Windows.Forms.DockStyle.Left;
-            this.optionsPanel.Location = new System.Drawing.Point(0, 0);
-            this.optionsPanel.MinimumSize = new System.Drawing.Size(2, 333);
+            this.optionsPanel.Dock = System.Windows.Forms.DockStyle.Right;
+            this.optionsPanel.Location = new System.Drawing.Point(620, 0);
+            this.optionsPanel.MinimumSize = new System.Drawing.Size(0, 0);
             this.optionsPanel.Name = "optionsPanel";
-            this.optionsPanel.Size = new System.Drawing.Size(483, 956);
+            this.optionsPanel.Padding = new System.Windows.Forms.Padding(0);
+            this.optionsPanel.Size = new System.Drawing.Size(0, 480);
             this.optionsPanel.TabIndex = 34;
             // 
             // OutCapActiveYLabelPower
@@ -939,9 +940,9 @@ namespace grapher
             this.DirectionalityPanel.Controls.Add(this.DomainBoxY);
             this.DirectionalityPanel.Controls.Add(this.DomainBoxX);
             this.DirectionalityPanel.Controls.Add(this.DirectionalityLabel);
-            this.DirectionalityPanel.Location = new System.Drawing.Point(12, 396);
+            this.DirectionalityPanel.Location = new System.Drawing.Point(8, 328);
             this.DirectionalityPanel.Name = "DirectionalityPanel";
-            this.DirectionalityPanel.Size = new System.Drawing.Size(298, 135);
+            this.DirectionalityPanel.Size = new System.Drawing.Size(308, 128);
             this.DirectionalityPanel.TabIndex = 300;
             // 
             // LpNormActiveValue
@@ -991,10 +992,10 @@ namespace grapher
             // 
             // DirectionalityActiveValueTitle
             // 
-            this.DirectionalityActiveValueTitle.AutoSize = true;
-            this.DirectionalityActiveValueTitle.Location = new System.Drawing.Point(176, 9);
+            this.DirectionalityActiveValueTitle.AutoSize = false;
+            this.DirectionalityActiveValueTitle.Location = new System.Drawing.Point(170, 8);
             this.DirectionalityActiveValueTitle.Name = "DirectionalityActiveValueTitle";
-            this.DirectionalityActiveValueTitle.Size = new System.Drawing.Size(41, 13);
+            this.DirectionalityActiveValueTitle.Size = new System.Drawing.Size(68, 18);
             this.DirectionalityActiveValueTitle.TabIndex = 13;
             this.DirectionalityActiveValueTitle.Text = "Current";
             // 
@@ -1078,9 +1079,9 @@ namespace grapher
             // 
             // toggleButton
             // 
-            this.toggleButton.Location = new System.Drawing.Point(211, 561);
+            this.toggleButton.Location = new System.Drawing.Point(166, 370);
             this.toggleButton.Name = "toggleButton";
-            this.toggleButton.Size = new System.Drawing.Size(104, 24);
+            this.toggleButton.Size = new System.Drawing.Size(150, 32);
             this.toggleButton.TabIndex = 950;
             this.toggleButton.Text = "toggle";
             this.toggleButton.UseVisualStyleBackColor = true;
@@ -1161,10 +1162,10 @@ namespace grapher
             // 
             // ActiveValueTitleY
             // 
-            this.ActiveValueTitleY.AutoSize = true;
-            this.ActiveValueTitleY.Location = new System.Drawing.Point(429, 29);
+            this.ActiveValueTitleY.AutoSize = false;
+            this.ActiveValueTitleY.Location = new System.Drawing.Point(410, 27);
             this.ActiveValueTitleY.Name = "ActiveValueTitleY";
-            this.ActiveValueTitleY.Size = new System.Drawing.Size(41, 13);
+            this.ActiveValueTitleY.Size = new System.Drawing.Size(68, 18);
             this.ActiveValueTitleY.TabIndex = 141;
             this.ActiveValueTitleY.Text = "Current";
             // 
@@ -1460,28 +1461,29 @@ namespace grapher
             // 
             // ActiveValueTitle
             // 
-            this.ActiveValueTitle.AutoSize = true;
-            this.ActiveValueTitle.Location = new System.Drawing.Point(188, 29);
+            this.ActiveValueTitle.AutoSize = false;
+            this.ActiveValueTitle.Location = new System.Drawing.Point(242, 16);
             this.ActiveValueTitle.Name = "ActiveValueTitle";
-            this.ActiveValueTitle.Size = new System.Drawing.Size(41, 13);
+            this.ActiveValueTitle.Size = new System.Drawing.Size(82, 18);
             this.ActiveValueTitle.TabIndex = 115;
             this.ActiveValueTitle.Text = "Current";
             // 
             // MouseLabel
             // 
-            this.MouseLabel.AutoSize = true;
-            this.MouseLabel.Location = new System.Drawing.Point(2, 27);
+            this.MouseLabel.AutoSize = false;
+            this.MouseLabel.Location = new System.Drawing.Point(104, 12);
             this.MouseLabel.Name = "MouseLabel";
-            this.MouseLabel.Size = new System.Drawing.Size(80, 13);
+            this.MouseLabel.Size = new System.Drawing.Size(210, 18);
             this.MouseLabel.TabIndex = 114;
-            this.MouseLabel.Text = "Last (x, y): (x, y)";
+            this.MouseLabel.Text = "Last (x, y): (0, 0)";
+            this.MouseLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // LockXYLabel
             // 
-            this.LockXYLabel.AutoSize = true;
-            this.LockXYLabel.Location = new System.Drawing.Point(256, 29);
+            this.LockXYLabel.AutoSize = false;
+            this.LockXYLabel.Location = new System.Drawing.Point(139, 127);
             this.LockXYLabel.Name = "LockXYLabel";
-            this.LockXYLabel.Size = new System.Drawing.Size(60, 13);
+            this.LockXYLabel.Size = new System.Drawing.Size(90, 18);
             this.LockXYLabel.TabIndex = 113;
             this.LockXYLabel.Text = "Lock X && Y";
             // 
@@ -1490,7 +1492,7 @@ namespace grapher
             this.sensXYLock.AutoSize = true;
             this.sensXYLock.Checked = true;
             this.sensXYLock.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.sensXYLock.Location = new System.Drawing.Point(282, 75);
+            this.sensXYLock.Location = new System.Drawing.Point(120, 129);
             this.sensXYLock.Name = "sensXYLock";
             this.sensXYLock.Size = new System.Drawing.Size(15, 14);
             this.sensXYLock.TabIndex = 11;
@@ -1499,9 +1501,9 @@ namespace grapher
             // writeButton
             // 
             this.writeButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
-            this.writeButton.Location = new System.Drawing.Point(90, 554);
+            this.writeButton.Location = new System.Drawing.Point(8, 370);
             this.writeButton.Name = "writeButton";
-            this.writeButton.Size = new System.Drawing.Size(92, 35);
+            this.writeButton.Size = new System.Drawing.Size(150, 32);
             this.writeButton.TabIndex = 900;
             this.writeButton.Text = "Apply";
             this.writeButton.UseVisualStyleBackColor = true;
@@ -1606,13 +1608,15 @@ namespace grapher
             // 
             // menuStrip1
             // 
+            this.menuStrip1.AutoSize = false;
             this.menuStrip1.BackColor = System.Drawing.SystemColors.ControlLight;
+            this.menuStrip1.Dock = System.Windows.Forms.DockStyle.None;
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.graphsToolStripMenuItem,
             this.advancedToolStripMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Location = new System.Drawing.Point(22, 316);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(483, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(284, 28);
             this.menuStrip1.TabIndex = 1000;
             this.menuStrip1.TabStop = true;
             this.menuStrip1.Text = "menuStrip1";
@@ -1712,12 +1716,13 @@ namespace grapher
             // 
             // chartsPanel
             // 
-            this.chartsPanel.AutoScroll = true;
+            this.chartsPanel.AutoScroll = false;
             this.chartsPanel.Controls.Add(this.chartContainer);
             this.chartsPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chartsPanel.Location = new System.Drawing.Point(483, 0);
+            this.chartsPanel.Location = new System.Drawing.Point(0, 0);
             this.chartsPanel.Name = "chartsPanel";
-            this.chartsPanel.Size = new System.Drawing.Size(1401, 956);
+            this.chartsPanel.Padding = new System.Windows.Forms.Padding(0);
+            this.chartsPanel.Size = new System.Drawing.Size(620, 492);
             this.chartsPanel.TabIndex = 35;
             // 
             // GainChartY
@@ -1726,7 +1731,7 @@ namespace grapher
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             chartArea2.AxisX.Title = "Input Speed (counts/ms)";
-            chartArea2.AxisY.Title = "Slope of Velocity Chart";
+            chartArea2.AxisY.Title = "Velocity Gain";
             chartArea2.Name = "ChartArea1";
             this.GainChartY.ChartAreas.Add(chartArea2);
             legend2.Name = "Legend1";
@@ -1765,8 +1770,8 @@ namespace grapher
             this.VelocityChartY.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea5.AxisX.Title = "Input Speed (count/ms)";
-            chartArea5.AxisY.Title = "Output Speed (counts/ms)";
+            chartArea5.AxisX.Title = "Input Speed (counts/ms)";
+            chartArea5.AxisY.Title = "Out Speed";
             chartArea5.Name = "ChartArea1";
             this.VelocityChartY.ChartAreas.Add(chartArea5);
             legend5.Name = "Legend1";
@@ -1806,7 +1811,7 @@ namespace grapher
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             chartArea6.AxisX.Title = "Input Speed (counts/ms)";
-            chartArea6.AxisY.Title = "Ratio of Output to Input)";
+            chartArea6.AxisY.Title = "Sens Ratio";
             chartArea6.Name = "ChartArea1";
             this.AccelerationChartY.ChartAreas.Add(chartArea6);
             legend6.Name = "Legend1";
@@ -1846,7 +1851,7 @@ namespace grapher
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             chartArea4.AxisX.Title = "Input Speed (counts/ms)";
-            chartArea4.AxisY.Title = "Slope of Velocity Chart";
+            chartArea4.AxisY.Title = "Velocity Gain";
             chartArea4.Name = "ChartArea1";
             this.GainChart.ChartAreas.Add(chartArea4);
             legend4.Name = "Legend1";
@@ -1890,8 +1895,8 @@ namespace grapher
             this.VelocityChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea3.AxisX.Title = "Input Speed (count/ms)";
-            chartArea3.AxisY.Title = "Output Speed (counts/ms)";
+            chartArea3.AxisX.Title = "Input Speed (counts/ms)";
+            chartArea3.AxisY.Title = "Out Speed";
             chartArea3.Name = "ChartArea1";
             this.VelocityChart.ChartAreas.Add(chartArea3);
             legend3.Name = "Legend1";
@@ -1936,7 +1941,7 @@ namespace grapher
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             chartArea1.AxisX.Title = "Input Speed (counts/ms)";
-            chartArea1.AxisY.Title = "Ratio of Output to Input";
+            chartArea1.AxisY.Title = "Sens Ratio";
             chartArea1.Name = "ChartArea1";
             this.AccelerationChart.ChartAreas.Add(chartArea1);
             legend1.Name = "Legend1";
@@ -1989,13 +1994,15 @@ namespace grapher
             this.chartContainer.Controls.Add(this.GainChart, 0, 2);
             this.chartContainer.Controls.Add(this.VelocityChartY, 1, 1);
             this.chartContainer.Controls.Add(this.AccelerationChartY, 1, 0);
-            this.chartContainer.Location = new System.Drawing.Point(0, 0);
+            this.chartContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chartContainer.Location = new System.Drawing.Point(4, 30);
+            this.chartContainer.Margin = new System.Windows.Forms.Padding(0);
             this.chartContainer.Name = "chartContainer";
             this.chartContainer.RowCount = 3;
             this.chartContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33F));
             this.chartContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33F));
             this.chartContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.34F));
-            this.chartContainer.Size = new System.Drawing.Size(1401, 956);
+            this.chartContainer.Size = new System.Drawing.Size(526, 371);
             this.chartContainer.TabIndex = 40;
             // 
             // outCapBoxYPower
@@ -2274,9 +2281,9 @@ namespace grapher
             // 
             // VertHorzRatioBox
             // 
-            this.VertHorzRatioBox.Location = new System.Drawing.Point(106, 76);
+            this.VertHorzRatioBox.Location = new System.Drawing.Point(120, 72);
             this.VertHorzRatioBox.Name = "VertHorzRatioBox";
-            this.VertHorzRatioBox.Size = new System.Drawing.Size(76, 20);
+            this.VertHorzRatioBox.Size = new System.Drawing.Size(112, 20);
             this.VertHorzRatioBox.TabIndex = 12;
             // 
             // inputJumpBoxX
@@ -2337,16 +2344,16 @@ namespace grapher
             // 
             // rotationBox
             // 
-            this.rotationBox.Location = new System.Drawing.Point(106, 102);
+            this.rotationBox.Location = new System.Drawing.Point(120, 100);
             this.rotationBox.Name = "rotationBox";
-            this.rotationBox.Size = new System.Drawing.Size(76, 20);
+            this.rotationBox.Size = new System.Drawing.Size(112, 20);
             this.rotationBox.TabIndex = 13;
             // 
             // sensitivityBoxX
             // 
-            this.sensitivityBoxX.Location = new System.Drawing.Point(106, 49);
+            this.sensitivityBoxX.Location = new System.Drawing.Point(120, 44);
             this.sensitivityBoxX.Name = "sensitivityBoxX";
-            this.sensitivityBoxX.Size = new System.Drawing.Size(76, 20);
+            this.sensitivityBoxX.Size = new System.Drawing.Size(112, 20);
             this.sensitivityBoxX.TabIndex = 10;
             // 
             // accelTypeDropX
@@ -2362,12 +2369,15 @@ namespace grapher
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1884, 956);
+            this.ClientSize = new System.Drawing.Size(620, 536);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.MinimumSize = new System.Drawing.Size(580, 480);
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Controls.Add(this.chartsPanel);
             this.Controls.Add(this.optionsPanel);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "RawAcceleration";
-            this.Text = "Raw Accel";
+            this.Text = "Inxane Accel";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.RawAcceleration_FormClosing);
             this.Shown += new System.EventHandler(this.RawAcceleration_Shown);
             this.optionsPanel.ResumeLayout(false);

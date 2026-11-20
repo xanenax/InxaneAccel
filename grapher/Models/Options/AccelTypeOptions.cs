@@ -147,6 +147,8 @@ namespace grapher
 
         public LutApplyOptions LutApply { get; }
 
+        internal Action LayoutChangedCallback { get; set; }
+
         public LayoutBase AccelerationType
         {
             get
@@ -168,7 +170,11 @@ namespace grapher
             set
             {
                 AccelDropdown.Top = value;
-                AccelTypeActiveValue.Top = value;
+                if (AccelTypeActiveValue != null)
+                {
+                    AccelTypeActiveValue.Height = 24;
+                    AccelTypeActiveValue.Top = value + Math.Max(0, (AccelDropdown.Height - AccelTypeActiveValue.Height) / 2);
+                }
                 Layout(value + AccelDropdown.Height + Constants.OptionVerticalSeperation);
             }
         }
@@ -298,8 +304,8 @@ namespace grapher
                 AccelDropdown.Text = Constants.AccelDropDownDefaultFullText;
             }
 
-            Left = DecayRate.Left + Constants.DropDownLeftSeparation;
-            Width = DecayRate.Width - Constants.DropDownLeftSeparation;
+            Left = 14;
+            Width = 208;
 
             LutText.Expand();
             HandleLUTOptionsOnResize();
@@ -395,15 +401,163 @@ namespace grapher
             Exponent.AlignActiveValues();
             SyncSpeed.AlignActiveValues();
             LutApply.AlignActiveValues();
+            HandleLUTOptionsOnResize();
         }
 
         public void HandleLUTOptionsOnResize()
         {
-            LutText.Left = AccelDropdown.Left;
-            LutPanel.Left = GainSwitch.Left - 100;
-            LutPanel.Width = DecayRate.ActiveValueLabel.CenteringLabel.Right - LutPanel.Left;
-            LutApply.Left = LutPanel.Left;
-            LutApply.Width = AccelDropdown.Right - LutPanel.Left;
+            if (AccelDropdown.Name != "accelTypeDropX" && AccelDropdown.Name != "accelTypeDropY")
+            {
+                return;
+            }
+
+            // Flush 340px Inspector grid (16px L/R padding >= 14px margin): Labels 16..112, Inputs 120..232, Current 242..318.
+            AccelDropdown.Left = 16;
+            AccelDropdown.Width = 216;
+            if (AccelTypeActiveValue != null)
+            {
+                AccelTypeActiveValue.Width = 76;
+                AccelTypeActiveValue.Height = 24;
+                AccelTypeActiveValue.Left = 242;
+                AccelTypeActiveValue.Top = AccelDropdown.Top + Math.Max(0, (AccelDropdown.Height - AccelTypeActiveValue.Height) / 2);
+            }
+            LutText.Left = 16;
+            LutText.Width = 302;
+            LutPanel.Left = 16;
+            LutPanel.Width = 302;
+
+            LutApply.Label.Left = 16;
+            LutApply.Label.Width = 96;
+            LutApply.Label.Height = LutApply.OptionsDropdown.Height;
+            LutApply.Label.Top = LutApply.OptionsDropdown.Top;
+            LutApply.Label.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            LutApply.OptionsDropdown.Left = 120;
+            LutApply.OptionsDropdown.Width = 112;
+            if (LutApply.ActiveValueLabel != null)
+            {
+                LutApply.ActiveValueLabel.Width = 76;
+                LutApply.ActiveValueLabel.Height = 24;
+                LutApply.ActiveValueLabel.Left = 242;
+                LutApply.ActiveValueLabel.Top = LutApply.OptionsDropdown.Top + Math.Max(0, (LutApply.OptionsDropdown.Height - LutApply.ActiveValueLabel.Height) / 2);
+            }
+
+            PositionOptionInDrawer(DecayRate);
+            PositionOptionInDrawer(Gammma);
+            PositionOptionInDrawer(Smooth);
+            PositionOptionInDrawer(OutputOffset);
+            PositionOptionInDrawer(InputOffset);
+            PositionOptionInDrawer(OutputJump);
+            PositionOptionInDrawer(InputJump);
+            PositionOptionInDrawer(Limit);
+            PositionOptionInDrawer(PowerClassic);
+            PositionOptionInDrawer(Exponent);
+            PositionOptionInDrawer(SyncSpeed);
+            PositionCapInDrawer(ClassicCap?.CapTypeOptions);
+            PositionCapInDrawer(PowerCap?.CapTypeOptions);
+            if (ClassicCap != null)
+            {
+                PositionOptionInDrawer(ClassicCap.Slope);
+                PositionOptionInDrawer(ClassicCap.In);
+                PositionOptionInDrawer(ClassicCap.Out);
+            }
+            if (PowerCap != null)
+            {
+                PositionOptionInDrawer(PowerCap.Slope);
+                PositionOptionInDrawer(PowerCap.In);
+                PositionOptionInDrawer(PowerCap.Out);
+            }
+            if (GainSwitch != null)
+            {
+                GainSwitch.Left = 120;
+                if (GainSwitch.CheckBox != null && GainSwitch.CheckBox.Height < 20)
+                {
+                    GainSwitch.CheckBox.Height = 20;
+                }
+                if (GainSwitch.ActiveValueLabel != null)
+                {
+                    GainSwitch.ActiveValueLabel.Left = 242;
+                    GainSwitch.ActiveValueLabel.Width = 76;
+                }
+            }
+        }
+
+        private static void PositionCapInDrawer(CapTypeOptions capType)
+        {
+            if (capType == null) return;
+            capType.Label.Left = 16;
+            capType.Label.Width = 96;
+            capType.Label.Height = capType.OptionsDropdown.Height;
+            capType.Label.Top = capType.OptionsDropdown.Top;
+            capType.Label.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            capType.OptionsDropdown.Left = 120;
+            capType.OptionsDropdown.Width = 112;
+            if (capType.ActiveValueLabel != null)
+            {
+                capType.ActiveValueLabel.Left = 242;
+                capType.ActiveValueLabel.Width = 76;
+                capType.ActiveValueLabel.Height = 24;
+                capType.ActiveValueLabel.Top = capType.OptionsDropdown.Top + Math.Max(0, (capType.OptionsDropdown.Height - capType.ActiveValueLabel.Height) / 2);
+            }
+        }
+
+        private static void PositionOptionInDrawer(Option opt)
+        {
+            if (opt == null) return;
+            opt.Label.Left = 16;
+            opt.Label.Width = 96;
+            opt.Label.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            opt.Field.Box.Left = 120;
+            opt.Field.Box.Width = 112;
+            opt.ActiveValueLabel.Left = 242;
+            opt.ActiveValueLabel.Width = 76;
+        }
+
+        public int ComputeVisibleBottom()
+        {
+            int bottom = AccelDropdown.Visible ? AccelDropdown.Bottom : Top;
+
+            if (GainSwitch?.CheckBox != null && GainSwitch.CheckBox.Visible)
+                bottom = Math.Max(bottom, GainSwitch.CheckBox.Bottom);
+            if (ClassicCap != null && ClassicCap.Visible)
+            {
+                if (ClassicCap.Slope?.Field?.Box != null && ClassicCap.Slope.Field.Box.Visible)
+                    bottom = Math.Max(bottom, ClassicCap.Slope.Field.Box.Bottom);
+                if (ClassicCap.CapTypeOptions?.OptionsDropdown != null && ClassicCap.CapTypeOptions.OptionsDropdown.Visible)
+                    bottom = Math.Max(bottom, ClassicCap.CapTypeOptions.OptionsDropdown.Bottom);
+                if (ClassicCap.In?.Field?.Box != null && ClassicCap.In.Field.Box.Visible)
+                    bottom = Math.Max(bottom, ClassicCap.In.Field.Box.Bottom);
+                if (ClassicCap.Out?.Field?.Box != null && ClassicCap.Out.Field.Box.Visible)
+                    bottom = Math.Max(bottom, ClassicCap.Out.Field.Box.Bottom);
+            }
+            if (PowerCap != null && PowerCap.Visible)
+            {
+                if (PowerCap.Slope?.Field?.Box != null && PowerCap.Slope.Field.Box.Visible)
+                    bottom = Math.Max(bottom, PowerCap.Slope.Field.Box.Bottom);
+                if (PowerCap.CapTypeOptions?.OptionsDropdown != null && PowerCap.CapTypeOptions.OptionsDropdown.Visible)
+                    bottom = Math.Max(bottom, PowerCap.CapTypeOptions.OptionsDropdown.Bottom);
+                if (PowerCap.In?.Field?.Box != null && PowerCap.In.Field.Box.Visible)
+                    bottom = Math.Max(bottom, PowerCap.In.Field.Box.Bottom);
+                if (PowerCap.Out?.Field?.Box != null && PowerCap.Out.Field.Box.Visible)
+                    bottom = Math.Max(bottom, PowerCap.Out.Field.Box.Bottom);
+            }
+
+            foreach (var opt in new[] { DecayRate, Gammma, Smooth, InputJump, OutputJump, InputOffset, OutputOffset, Limit, PowerClassic, Exponent, SyncSpeed })
+            {
+                if (opt?.Field?.Box != null && opt.Field.Box.Visible)
+                    bottom = Math.Max(bottom, opt.Field.Box.Bottom);
+            }
+
+            if (LutPanel != null && LutPanel.Visible)
+                bottom = Math.Max(bottom, LutPanel.PointsTextBox.Bottom);
+            if (LutApply?.OptionsDropdown != null && LutApply.Visible)
+                bottom = Math.Max(bottom, LutApply.OptionsDropdown.Bottom);
+
+            return bottom;
+        }
+
+        public void RefreshLayout()
+        {
+            Layout(Beneath);
         }
 
         private void OnIndexChanged(object sender, EventArgs e)
@@ -438,6 +592,8 @@ namespace grapher
                 LutPanel,
                 LutApply,
                 top);
+            HandleLUTOptionsOnResize();
+            LayoutChangedCallback?.Invoke();
         }
 
         private LayoutBase AccelTypeFromSettings(ref AccelArgs args)

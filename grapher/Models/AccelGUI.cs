@@ -58,10 +58,7 @@ namespace grapher
             RefreshActive();
             SetupButtons();
 
-            // TODO: The below removes an overlapping form from the anisotropy panel.
-            // Figure out why and remove the overlap and below.
             ApplyOptions.Directionality.Show();
-            ApplyOptions.Directionality.Hide();
         }
 
         #endregion Constructors
@@ -151,6 +148,24 @@ namespace grapher
                 }
                 else
                 {
+                    if (Settings.ActiveProfile.argsX.mode == AccelMode.lut &&
+                        !string.IsNullOrWhiteSpace(ApplyOptions?.OptionSetX?.Options?.LutPanel?.PointsTextBox?.Text))
+                    {
+                        try
+                        {
+                            string baseDir = System.IO.Path.GetDirectoryName(typeof(CurvePresetManager).Assembly.Location) ?? AppDomain.CurrentDomain.BaseDirectory;
+                        string lutPointsPath = System.IO.Path.Combine(baseDir, CurvePresetManager.LutPointsFileName);
+                            System.IO.File.WriteAllText(
+                                lutPointsPath,
+                                ApplyOptions.OptionSetX.Options.LutPanel.PointsTextBox.Text.Trim(),
+                                new System.Text.UTF8Encoding(false));
+                        }
+                        catch
+                        {
+                            // Ignore disk write failure if directory is read-only.
+                        }
+                    }
+
                     RefreshActive();
                     Settings.SetActiveHandles();
                     return;
@@ -163,6 +178,7 @@ namespace grapher
 
             using (var form = new MessageDialog(error_message, "bad input"))
             {
+                grapher.Models.Theming.Theme.Apply(form);
                 form.ShowDialog();
             }
         }
@@ -200,13 +216,89 @@ namespace grapher
             return chartTimer;
         }
 
+        public void SelectCurvePreset(
+            string presetName,
+            RichTextBox xLutPointsBox,
+            RichTextBox yLutPointsBox,
+            ComboBox accelDropX,
+            ComboBox accelDropY)
+        {
+            string targetLut = string.Equals(presetName, CurvePresetManager.PresetCleanBump, StringComparison.OrdinalIgnoreCase)
+                ? CurvePresetManager.CleanBumpLutText
+                : CurvePresetManager.OriginalLutText;
+
+            if (string.IsNullOrWhiteSpace(targetLut))
+            {
+                return;
+            }
+
+            CurvePresetManager.SetActivePreset(presetName);
+
+            if (accelDropX != null && !(accelDropX.SelectedItem is Layouts.LUTLayout))
+            {
+                accelDropX.SelectedItem = AccelTypeOptions.LUT;
+            }
+
+            if (xLutPointsBox != null)
+            {
+                xLutPointsBox.Text = targetLut;
+            }
+
+            if (!ApplyOptions.IsWhole && !ApplyOptions.ByComponentVectorXYLock.Checked && yLutPointsBox != null)
+            {
+                if (accelDropY != null && !(accelDropY.SelectedItem is Layouts.LUTLayout))
+                {
+                    accelDropY.SelectedItem = AccelTypeOptions.LUT;
+                }
+                yLutPointsBox.Text = targetLut;
+            }
+
+            // Preview curve purely in-memory without mutating Apply as, saved files, active readouts, or the driver
+            // until Apply is explicitly pressed.
+            try
+            {
+                var previewProfile = MakeSettingsFromFields();
+                previewProfile.inputSpeedArgs.inputSmoothHalflife = 0;
+                previewProfile.inputSpeedArgs.scaleSmoothHalflife = 0;
+                previewProfile.inputSpeedArgs.outputSmoothHalflife = 0;
+                using (var previewAccel = new ManagedAccel(previewProfile))
+                {
+                    AccelCharts.Calculate(previewAccel, previewProfile);
+                    AccelCharts.Bind();
+                }
+            }
+            catch
+            {
+                // Ignore transient parse states.
+            }
+        }
+
         private void SetupButtons()
         {
-            WriteButton.Top = Constants.SensitivityChartAloneHeight - Constants.ButtonVerticalOffset;
+            int pw = WriteButton.Parent != null && WriteButton.Parent.ClientSize.Width > 320
+                ? WriteButton.Parent.ClientSize.Width
+                : 620;
+
+            const int marginX = 16;
+            const int ctrlY = 10;
+            const int ctrlH = 32;
+            const int btnGap = 8;
+            const int applyW = 104;
+            const int resetW = 88;
+
+            int applyX = pw - marginX - applyW;
+            int resetX = applyX - btnGap - resetW;
+
+            WriteButton.Left = applyX;
+            WriteButton.Top = ctrlY;
+            WriteButton.Width = applyW;
+            WriteButton.Height = ctrlH;
 
             ResetButton.TextAlign = ContentAlignment.MiddleCenter;
-            ResetButton.Size = WriteButton.Size;
-            ResetButton.Top = WriteButton.Top;
+            ResetButton.Left = resetX;
+            ResetButton.Top = ctrlY;
+            ResetButton.Width = resetW;
+            ResetButton.Height = ctrlH;
 
             SetButtonDefaults();
         }
@@ -281,6 +373,7 @@ namespace grapher
         {
             using (var devMenu = new DeviceMenuForm(Settings))
             {
+                grapher.Models.Theming.Theme.Apply(devMenu);
                 if (devMenu.ShowDialog() == DialogResult.OK)
                 {
                     Settings.Submit(devMenu.defaultConfig, devMenu.Items);

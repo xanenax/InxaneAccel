@@ -18,15 +18,19 @@ namespace grapher
             Field = field;
             Label = label;
             ActiveValueLabel = activeValueLabel;
-            Left = left;
+            int effectiveLeft = left == 0 ? 16 : left;
+            int separation = left == 0 ? 8 : Constants.OptionLabelBoxSeperation;
+            Left = effectiveLeft;
 
             label.AutoSize = false;
             label.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            label.Width = Field.Left - left - Constants.OptionLabelBoxSeperation;
+            label.Width = Field.Left - effectiveLeft - separation;
             label.Height = Field.Height;
+            label.Top = Field.Top;
 
             ActiveValueLabel.Left = Field.Left + Field.Width;
             ActiveValueLabel.Height = Field.Height;
+            ActiveValueLabel.Top = Field.Top;
         }
 
         public Option(

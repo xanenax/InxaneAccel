@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.Serialization;
@@ -36,23 +37,36 @@ namespace grapher.Models.Theming
             return doc;
         }
 
+        public static string NormalizeSchemeName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name) ||
+                string.Equals(name, "Apple Dark", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(name, "OLED Midnight", StringComparison.OrdinalIgnoreCase))
+            {
+                return ColorScheme.MacOSDarkTheme.Name;
+            }
+
+            return name;
+        }
+
         /// <summary>
         /// Retrieve the selected <see cref="ColorScheme"/> according to the <paramref name="settings"/>.
         /// </summary>
         public static ColorScheme GetSelected(GUISettings settings, IEnumerable<ColorScheme> schemes)
         {
-            if (settings == null)
-            {
-                return ColorScheme.LightTheme;
-            }
-
             if (schemes == null)
             {
                 schemes = LoadSchemes();
             }
 
-            var scheme = schemes.FirstOrDefault(s => s.Name == settings.CurrentColorScheme);
-            return scheme ?? ColorScheme.LightTheme;
+            var targetName = NormalizeSchemeName(settings?.CurrentColorScheme);
+            var scheme = schemes.FirstOrDefault(s => string.Equals(s.Name, targetName, StringComparison.OrdinalIgnoreCase))
+                         ?? ColorScheme.MacOSDarkTheme;
+            var accentName = string.IsNullOrWhiteSpace(settings?.CurrentAccentColor)
+                ? "Indigo"
+                : settings.CurrentAccentColor;
+
+            return ColorScheme.WithAccent(scheme, accentName);
         }
 
         public static IEnumerable<ColorScheme> LoadSchemes()
@@ -61,13 +75,18 @@ namespace grapher.Models.Theming
             return operations.LoadThemes();
         }
 
-        public static ColorScheme FromName(string name)
+        public static ColorScheme FromName(string name, string accentName = null)
         {
             var operations = new ThemeFileOperations();
             var schemes = operations.LoadThemes();
 
-            var scheme = schemes.FirstOrDefault(s=> s.Name == name);
-            return scheme ?? ColorScheme.LightTheme;
+            var targetName = NormalizeSchemeName(name);
+            var scheme = schemes.FirstOrDefault(s => string.Equals(s.Name, targetName, StringComparison.OrdinalIgnoreCase))
+                         ?? ColorScheme.MacOSDarkTheme;
+
+            return string.IsNullOrEmpty(accentName)
+                ? scheme.Clone()
+                : ColorScheme.WithAccent(scheme, accentName);
         }
     }
 }

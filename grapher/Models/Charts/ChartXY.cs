@@ -10,7 +10,7 @@ namespace grapher
     {
         #region Fields
 
-        public static ElementPosition DefaultLegendPosition = new ElementPosition(25, 0, 50, 25);
+        public static ElementPosition DefaultLegendPosition = new ElementPosition(15, 8, 70, 8);
         public static ElementPosition GainLegendPosition = new ElementPosition(25, -1, 50, 25);
 
         #endregion Fields
@@ -112,7 +112,17 @@ namespace grapher
             area.AxisY.ScaleView.SmallScrollSize = 0.001;
             
             area.AxisX.LabelStyle.Format = "0.##";
-            area.AxisY.LabelStyle.Format = "0.##";
+            area.AxisY.LabelStyle.Format = "0.00";
+            area.AxisX.MajorTickMark.Enabled = true;
+            area.AxisX.MajorTickMark.TickMarkStyle = TickMarkStyle.OutsideArea;
+            area.AxisX.MajorTickMark.LineColor = System.Drawing.Color.Transparent;
+            area.AxisX.MajorTickMark.Size = 2.2f;
+            area.AxisY.MajorTickMark.Enabled = true;
+            area.AxisY.MajorTickMark.TickMarkStyle = TickMarkStyle.OutsideArea;
+            area.AxisY.MajorTickMark.LineColor = System.Drawing.Color.Transparent;
+            area.AxisY.MajorTickMark.Size = 2.2f;
+            area.AxisX.MinorTickMark.Enabled = false;
+            area.AxisY.MinorTickMark.Enabled = false;
 
             area.CursorY.Interval = 0.001;
 
@@ -125,41 +135,60 @@ namespace grapher
             area.CursorX.IsUserEnabled = true;
             area.CursorY.IsUserEnabled = true;
 
+            chart.Dock = System.Windows.Forms.DockStyle.Fill;
+            chart.Margin = new System.Windows.Forms.Padding(0);
+
             chart.Series[1].Points.Clear();
-            chart.Series[1].Points.AddXY(0, 0);
+            int dummyIdx = chart.Series[1].Points.AddXY(0, 0);
+            chart.Series[1].Points[dummyIdx].Color = System.Drawing.Color.Transparent;
+            chart.Series[1].Points[dummyIdx].MarkerColor = System.Drawing.Color.Transparent;
+            chart.Series[1].Points[dummyIdx].MarkerBorderColor = System.Drawing.Color.Transparent;
             
-            area.AxisX.TitleFont = new System.Drawing.Font(area.AxisX.TitleFont.Name, Constants.ChartAxisFontSize, System.Drawing.FontStyle.Bold);
+            area.AxisX.LabelStyle.Font = new System.Drawing.Font("Segoe UI", 8.0F, System.Drawing.FontStyle.Regular);
+            area.AxisY.LabelStyle.Font = area.AxisX.LabelStyle.Font;
+            area.AxisX.TitleFont = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Bold);
             area.AxisY.TitleFont = area.AxisX.TitleFont;
 
-            title.Font = new System.Drawing.Font(title.Font.Name, Constants.ChartTitleFontSize, System.Drawing.FontStyle.Italic | System.Drawing.FontStyle.Bold);
+            title.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Bold);
+            legend.Font = new System.Drawing.Font("Segoe UI", 8.0F, System.Drawing.FontStyle.Regular);
             
-            chart.Series[0].BorderWidth = Constants.ChartSeriesLineWidth;
-            chart.Series[0].MarkerSize = Constants.ChartSeriesLineWidth * 2;
-            chart.Series[2].BorderWidth = Constants.ChartSeriesLineWidth;
-            chart.Series[2].MarkerSize = Constants.ChartSeriesLineWidth * 2;
+            chart.Series[0].BorderWidth = 2;
+            chart.Series[0].MarkerSize = 6;
+            chart.Series[2].BorderWidth = 2;
+            chart.Series[2].MarkerSize = 6;
 
             for (int i = 1; i < chart.Series.Count; i += 2)
             {
+                chart.Series[i].MarkerStyle = MarkerStyle.Circle;
                 chart.Series[i].MarkerSize = Constants.DotMarkerSize;
+                chart.Series[i].Color = System.Drawing.Color.White;
+                chart.Series[i].MarkerColor = System.Drawing.Color.White;
+                chart.Series[i].MarkerBorderWidth = 2;
             }
 
-            area.AxisX.MinorGrid.Enabled = true;
-            area.AxisX.MinorGrid.LineDashStyle = ChartDashStyle.Dot;
+            area.AxisX.MinorGrid.Enabled = false;
+            area.AxisY.MinorGrid.Enabled = false;
 
-            title.Alignment = System.Drawing.ContentAlignment.MiddleCenter;
+            title.Visible = false;
+            title.DockedToChartArea = string.Empty;
+            title.IsDockedInsideChartArea = false;
+            title.Position.Auto = false;
 
-            legend.DockedToChartArea = area.Name;
-            legend.LegendStyle = LegendStyle.Row;
-            legend.IsTextAutoFit = true;
-            legend.MaximumAutoSize = 100;
-            legend.AutoFitMinFontSize = 5;
-            
-            ElementPosition legendPosNew = DefaultLegendPosition;
-            legend.Position = legendPosNew;
+            legend.Enabled = false;
+            legend.DockedToChartArea = string.Empty;
+            legend.IsDockedInsideChartArea = false;
+            legend.Position.Auto = false;
+
+            area.Position.Auto = false;
+            area.InnerPlotPosition.Auto = true;
 
             System.Drawing.Color bgTrans = System.Drawing.Color.Transparent;
 
-            area.BackColor = bgTrans;
+            area.BackColor = grapher.Models.Theming.Theme.ResolveChartCanvasColor(grapher.Models.Theming.Theme.CurrentScheme);
+            area.BorderWidth = 0;
+            area.BorderColor = System.Drawing.Color.Transparent;
+            chart.BorderlineWidth = 0;
+            chart.BorderlineColor = bgTrans;
             legend.BackColor = bgTrans;
         }
 
@@ -169,11 +198,23 @@ namespace grapher
             {
                 pointOne.Get(out var x, out var y);
                 chart.Series[1].Points.DataBindXY(x, y);
+                HidePointPrimitives(chart.Series[1]);
                 if (pointTwo != null)
                 {
                     pointTwo.Get(out x, out y);
                     chart.Series[3].Points.DataBindXY(x, y);
+                    HidePointPrimitives(chart.Series[3]);
                 }
+            }
+        }
+
+        private static void HidePointPrimitives(Series series)
+        {
+            foreach (DataPoint pt in series.Points)
+            {
+                pt.Color = System.Drawing.Color.Transparent;
+                pt.MarkerColor = System.Drawing.Color.Transparent;
+                pt.MarkerBorderColor = System.Drawing.Color.Transparent;
             }
         }
 
@@ -247,23 +288,139 @@ namespace grapher
         public void Bind(IDictionary data)
         {
             ChartX.Series[0].Points.DataBindXY(data.Keys, data.Values);
+            HidePointPrimitives(ChartX.Series[0]);
             ChartX.Series[2].IsVisibleInLegend = false;
             ChartX.Series[2].Points.Clear();
+            ConfigureXAxis(ChartX.ChartAreas[0], GetMaxDictKey(data));
+            if (Title == Constants.VelocityChartTitle)
+            {
+                ConfigureVelocityAxis(ChartX.ChartAreas[0], GetMaxDictValue(data));
+            }
         }
 
         public void BindXY(IDictionary dataX, IDictionary dataY)
         {
             ChartX.Series[0].Points.DataBindXY(dataX.Keys, dataX.Values);
+            HidePointPrimitives(ChartX.Series[0]);
             ChartY.Series[0].Points.DataBindXY(dataY.Keys, dataY.Values);
+            HidePointPrimitives(ChartY.Series[0]);
             ChartX.Series[2].IsVisibleInLegend = false;
             ChartX.Series[2].Points.Clear();
+            ConfigureXAxis(ChartX.ChartAreas[0], GetMaxDictKey(dataX));
+            ConfigureXAxis(ChartY.ChartAreas[0], GetMaxDictKey(dataY));
+            if (Title == Constants.VelocityChartTitle)
+            {
+                ConfigureVelocityAxis(ChartX.ChartAreas[0], GetMaxDictValue(dataX));
+                ConfigureVelocityAxis(ChartY.ChartAreas[0], GetMaxDictValue(dataY));
+            }
         }
 
         public void BindXYCombined(IDictionary dataX, IDictionary dataY)
         {
             ChartX.Series[0].Points.DataBindXY(dataX.Keys, dataX.Values);
+            HidePointPrimitives(ChartX.Series[0]);
             ChartX.Series[2].Points.DataBindXY(dataY.Keys, dataY.Values);
+            HidePointPrimitives(ChartX.Series[2]);
             ChartX.Series[2].IsVisibleInLegend = true;
+            ConfigureXAxis(ChartX.ChartAreas[0], Math.Max(GetMaxDictKey(dataX), GetMaxDictKey(dataY)));
+            if (Title == Constants.VelocityChartTitle)
+            {
+                ConfigureVelocityAxis(ChartX.ChartAreas[0], Math.Max(GetMaxDictValue(dataX), GetMaxDictValue(dataY)));
+            }
+        }
+
+        private static double GetMaxDictKey(IDictionary data)
+        {
+            double maxKey = 0.0;
+            foreach (var k in data.Keys)
+            {
+                if (k is double d && !double.IsNaN(d) && !double.IsInfinity(d) && d > maxKey)
+                {
+                    maxKey = d;
+                }
+            }
+            return maxKey;
+        }
+
+        private static double GetMaxDictValue(IDictionary data)
+        {
+            double maxVal = 0.0;
+            foreach (var v in data.Values)
+            {
+                if (v is double d && !double.IsNaN(d) && !double.IsInfinity(d) && d > maxVal)
+                {
+                    maxVal = d;
+                }
+            }
+            return maxVal;
+        }
+
+        private static double PickCleanStep(double rawStep)
+        {
+            if (rawStep <= 0)
+            {
+                return 1.0;
+            }
+
+            if (rawStep >= 10)
+            {
+                double magnitude = Math.Pow(10, Math.Floor(Math.Log10(rawStep)));
+                double norm = rawStep / magnitude;
+                if (norm <= 1.0) return 1.0 * magnitude;
+                if (norm <= 2.0) return 2.0 * magnitude;
+                if (norm <= 2.5) return 2.5 * magnitude;
+                if (norm <= 5.0) return 5.0 * magnitude;
+                return 10.0 * magnitude;
+            }
+
+            return Math.Max(0.5, Math.Ceiling(rawStep * 2.0) / 2.0);
+        }
+
+        private static void ConfigureXAxis(ChartArea area, double maxX)
+        {
+            if (maxX <= 0)
+            {
+                maxX = 80.0;
+            }
+
+            double step = PickCleanStep(maxX / 4.0);
+            double axisEnd = Math.Ceiling(maxX / step) * step;
+            if (axisEnd < step * 3) axisEnd = step * 4;
+
+            area.AxisX.IsMarginVisible = false;
+            area.AxisX.Minimum = 0.0;
+            area.AxisX.Maximum = axisEnd;
+            area.AxisX.Interval = step;
+            area.AxisX.MajorGrid.Interval = step;
+            area.AxisX.MajorGrid.IntervalOffset = 0.0;
+            area.AxisX.LabelStyle.Interval = step;
+            area.AxisX.LabelStyle.IntervalOffset = 0.0;
+            area.AxisX.LabelStyle.IsEndLabelVisible = true;
+            area.AxisX.MajorTickMark.Interval = step;
+            area.AxisX.MajorTickMark.IntervalOffset = 0.0;
+        }
+
+        private static void ConfigureVelocityAxis(ChartArea area, double maxVal)
+        {
+            if (maxVal <= 0)
+            {
+                maxVal = 100.0;
+            }
+
+            double step = PickCleanStep((maxVal * 1.05) / 4.0);
+            double padBottom = step * 0.22;
+            double padTop = step * 0.20;
+
+            area.AxisY.Minimum = -padBottom;
+            area.AxisY.Maximum = step * 4.0 + padTop;
+            area.AxisY.Interval = step;
+            area.AxisY.MajorGrid.Interval = step;
+            area.AxisY.MajorGrid.IntervalOffset = padBottom;
+            area.AxisY.LabelStyle.Interval = step;
+            area.AxisY.LabelStyle.IntervalOffset = padBottom;
+            area.AxisY.MajorTickMark.Interval = step;
+            area.AxisY.MajorTickMark.IntervalOffset = padBottom;
+            area.AxisY.LabelStyle.Format = "0.##";
         }
 
         public void SetLegendPosition(ElementPosition position)
@@ -283,19 +440,35 @@ namespace grapher
         public void SetMinMax(double min, double max)
         {
             VerifyRange(min, max);
-            ChartX.ChartAreas[0].AxisY.Minimum = min * (1 - VerticalMargin);
-            ChartX.ChartAreas[0].AxisY.Maximum = max * (1 + VerticalMargin);
+            if (Title == Constants.SensitivityChartTitle &&
+                grapher.Models.Options.CurvePresetManager.OriginalMinY > 0 &&
+                grapher.Models.Options.CurvePresetManager.OriginalMaxY > grapher.Models.Options.CurvePresetManager.OriginalMinY)
+            {
+                min = Math.Min(min, grapher.Models.Options.CurvePresetManager.OriginalMinY);
+                max = Math.Max(max, grapher.Models.Options.CurvePresetManager.OriginalMaxY);
+            }
+
+            ApplySpanYRange(ChartX.ChartAreas[0], min, max);
         }
 
         public void SetMinMaxXY(double minX, double maxX, double minY, double maxY)
         {
             VerifyRange(minX, maxX);
-            ChartX.ChartAreas[0].AxisY.Minimum = minX * (1 - VerticalMargin);
-            ChartX.ChartAreas[0].AxisY.Maximum = maxX * (1 + VerticalMargin);
+            ApplySpanYRange(ChartX.ChartAreas[0], minX, maxX);
 
             VerifyRange(minY, maxY);
-            ChartY.ChartAreas[0].AxisY.Minimum = minY * (1 - VerticalMargin);
-            ChartY.ChartAreas[0].AxisY.Maximum = maxY * (1 + VerticalMargin);
+            ApplySpanYRange(ChartY.ChartAreas[0], minY, maxY);
+        }
+
+        private static void ApplySpanYRange(ChartArea area, double min, double max)
+        {
+            double span = max - min;
+            double pad = Math.Max(span * 0.15, Math.Max(0.08, Math.Abs(min) * VerticalMargin));
+            double axisMin = min - pad;
+            double axisMax = max + pad;
+            area.AxisY.Minimum = axisMin;
+            area.AxisY.Maximum = axisMax + 1e-4;
+            area.AxisY.Interval = (axisMax - axisMin) / 4.0;
         }
 
         public void SetCombined()

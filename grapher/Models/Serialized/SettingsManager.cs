@@ -42,6 +42,7 @@ namespace grapher.Models.Serialized
             GuiSettings = GUISettings.MaybeLoad();
 
             SelectedTheme = GetSelectedTheme();
+            SelectedAccent = GetSelectedAccent();
             AddEventsToThemeMenu();
 
             if (GuiSettings is null)
@@ -144,6 +145,7 @@ namespace grapher.Models.Serialized
         private ToolStripMenuItem ShowVelocityAndGainMoveMenuItem { get; set; }
         private ToolStripMenuItem ThemeMenu { get; set; }
         private string SelectedTheme { get; set; }
+        private string SelectedAccent { get; set; }
         private Form Form { get; set; }
 
         #endregion Properties
@@ -217,7 +219,8 @@ namespace grapher.Models.Serialized
                 ShowLastMouseMove = ShowLastMouseMoveMenuItem.Checked,
                 ShowVelocityAndGain = ShowVelocityAndGainMoveMenuItem.Checked,
                 AutoWriteToDriverOnStartup = AutoWriteMenuItem.Checked,
-                CurrentColorScheme = SelectedTheme
+                CurrentColorScheme = SelectedTheme,
+                CurrentAccentColor = SelectedAccent
             };
         }
 
@@ -337,35 +340,55 @@ namespace grapher.Models.Serialized
 
         private string GetSelectedTheme()
         {
-            if (GuiSettings == null || string.IsNullOrEmpty(GuiSettings.CurrentColorScheme))
+            return ColorSchemeManager.NormalizeSchemeName(GuiSettings?.CurrentColorScheme);
+        }
+
+        private string GetSelectedAccent()
+        {
+            if (GuiSettings == null || string.IsNullOrWhiteSpace(GuiSettings.CurrentAccentColor))
             {
-                return "Light Theme";
+                return "Indigo";
             }
 
-            return GuiSettings.CurrentColorScheme;
+            return GuiSettings.CurrentAccentColor;
         }
 
         private void AddEventsToThemeMenu()
         {
-            foreach (ToolStripMenuItem item in ThemeMenu.DropDownItems)
+            foreach (var item in ThemeMenu.DropDownItems.OfType<ToolStripMenuItem>())
             {
                 item.Click += (s, e) =>
                 {
-                    if (GuiSettings.CurrentColorScheme == item.Name)
+                    if (Equals(item.Tag, "ThemeItem"))
+                    {
+                        if (string.Equals(SelectedTheme, item.Text, StringComparison.OrdinalIgnoreCase))
+                        {
+                            return;
+                        }
+
+                        SelectedTheme = item.Text;
+                    }
+                    else if (item.Tag is string accentName)
+                    {
+                        if (string.Equals(SelectedAccent, accentName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            return;
+                        }
+
+                        SelectedAccent = accentName;
+                    }
+                    else
                     {
                         return;
                     }
 
-                    SelectedTheme = item.Text;
-                    var colorScheme = ColorSchemeManager.FromName(item.Text);
+                    var colorScheme = ColorSchemeManager.FromName(SelectedTheme, SelectedAccent);
 
                     Theme.CurrentScheme = colorScheme;
-                    Theme.Apply(Form);
+                    Theme.Apply(Form, Form.MainMenuStrip);
                     GuiSettings.CurrentColorScheme = colorScheme.Name;
+                    GuiSettings.CurrentAccentColor = SelectedAccent;
                     GuiSettings.Save();
-
-                    MessageBox.Show(@"If you switched between a light and dark theme, some colors might be off. 
-If this is the case, please restart the app to apply all colors correctly."); 
                 };
             }
         }

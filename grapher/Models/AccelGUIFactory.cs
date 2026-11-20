@@ -659,13 +659,13 @@ namespace grapher.Models
             var optionsSetX = new AccelOptionSet(
                 optionSetXTitle,
                 activeValueTitleX,
-                rotationBox.Top + rotationBox.Height + Constants.OptionVerticalSeperation,
+                172,
                 accelerationOptionsX);
 
             var optionsSetY = new AccelOptionSet(
                 optionSetYTitle,
                 activeValueTitleY,
-                rotationBox.Top + rotationBox.Height + Constants.OptionVerticalSeperation,
+                172,
                 accelerationOptionsY);
 
             var directionalOptions = new DirectionalityOptions(

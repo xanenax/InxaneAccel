@@ -1,3 +1,14 @@
+# Inxane Accel (Raw Accel 1.7.1 Fork)
+
+A UI-redesigned fork of [RawAccelOfficial/rawaccel](https://github.com/RawAccelOfficial/rawaccel) (v1.7.1) featuring a unified native dark/light surface architecture, customizable accent colors (`Indigo`, `Apple Blue`, `Purple`, `Emerald`, `Orange`), custom owner-drawn popovers and controls, `Original Curve` / `Clean Curve` LUT preview switching, and updated branding (`InxaneAccel.exe`) while keeping 100% of the signed Raw Accel 1.7.1 driver, curve math, and profile serialization intact.
+
+> Building `grapher/grapher-sdk.csproj` with .NET SDK:
+> ```powershell
+> dotnet build grapher/grapher-sdk.csproj -c Release -p:RawAccelRuntimeDir="<path-to-folder-with-wrapper.dll-and-Newtonsoft.Json.dll>"
+> ```
+
+---
+
 # Raw Accel
 
 Raw Accel is a Windows 10 & Windows 11 x86-64 driver which allows for the acceleration of mouse input in the raw input stream. It started as a replacement for [InterAccel](https://github.com/KovaaK/InterAccel) and has been extended with more acceleration types, charts, and other features.
