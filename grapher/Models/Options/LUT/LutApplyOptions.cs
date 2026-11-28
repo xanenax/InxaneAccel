@@ -63,13 +63,15 @@ namespace grapher.Models.Options.LUT
                     Sensitivity,
                     Velocity,
                 });
+            ApplyOption = Sensitivity;
+            ActiveValueLabel.SetValue(Sensitivity.Name);
         }
 
         #endregion Constructors
 
         #region Properties
 
-        public LutApplyType ApplyType { get => ApplyOption.Type; }
+        public LutApplyType ApplyType => (ApplyOption ?? Sensitivity).Type;
 
         public LutApplyOption ApplyOption {
             get

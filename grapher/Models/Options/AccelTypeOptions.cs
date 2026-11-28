@@ -21,6 +21,9 @@ namespace grapher
         public static readonly LayoutBase LUT = new LUTLayout();
         public static readonly LayoutBase Off = new OffLayout();
 
+        private LayoutBase _previousAccelerationType = Off;
+        private bool _isSettingActiveValues;
+
         #endregion Fields
 
         #region Constructors
@@ -269,32 +272,42 @@ namespace grapher
 
         public void SetActiveValues(ref AccelArgs args)
         {
-            AccelerationType = AccelTypeFromSettings(ref args);
-            AccelTypeActiveValue.SetValue(AccelerationType.ActiveName);
-            GainSwitch.SetActiveValue(args.gain);
-            ClassicCap.SetActiveValues(
-                args.acceleration,
-                args.cap.x,
-                args.cap.y,
-                args.capMode);
-            PowerCap.SetActiveValues(
-                args.scale,
-                args.cap.x,
-                args.cap.y,
-                args.capMode);
-            InputJump.SetActiveValue(args.cap.x);
-            OutputJump.SetActiveValue(args.cap.y);
-            OutputOffset.SetActiveValue(args.outputOffset);
-            InputOffset.SetActiveValue(args.inputOffset);
-            DecayRate.SetActiveValue(args.decayRate);
-            Gammma.SetActiveValue(args.gamma);
-            Smooth.SetActiveValue(args.smooth);
-            Limit.SetActiveValue((args.mode == AccelMode.synchronous) ? args.motivity : args.limit);
-            PowerClassic.SetActiveValue(args.exponentClassic);
-            Exponent.SetActiveValue(args.exponentPower);
-            SyncSpeed.SetActiveValue(args.syncSpeed);
-            LutPanel.SetActiveValues(args.data, args.length, args.mode);
-            LutApply.SetActiveValue(args.gain);
+            _isSettingActiveValues = true;
+            try
+            {
+                AccelerationType = AccelTypeFromSettings(ref args);
+                _previousAccelerationType = AccelerationType;
+                AccelTypeActiveValue.SetValue(AccelerationType.ActiveName);
+                GainSwitch.SetActiveValue(args.gain);
+                ClassicCap.SetActiveValues(
+                    args.acceleration,
+                    args.cap.x,
+                    args.cap.y,
+                    args.capMode);
+                PowerCap.SetActiveValues(
+                    args.scale,
+                    args.cap.x,
+                    args.cap.y,
+                    args.capMode);
+                InputJump.SetActiveValue(args.cap.x);
+                OutputJump.SetActiveValue(args.cap.y);
+                OutputOffset.SetActiveValue(args.outputOffset);
+                InputOffset.SetActiveValue(args.inputOffset);
+                DecayRate.SetActiveValue(args.decayRate);
+                Gammma.SetActiveValue(args.gamma);
+                Smooth.SetActiveValue(args.smooth);
+                Limit.SetActiveValue((args.mode == AccelMode.synchronous) ? args.motivity : args.limit);
+                PowerClassic.SetActiveValue(args.exponentClassic);
+                Exponent.SetActiveValue(args.exponentPower);
+                SyncSpeed.SetActiveValue(args.syncSpeed);
+                LutPanel.SetActiveValues(args.data, args.length, args.mode);
+                bool activeLutVelocity = args.mode == AccelMode.lut && args.gain;
+                LutApply.SetActiveValue(activeLutVelocity);
+            }
+            finally
+            {
+                _isSettingActiveValues = false;
+            }
         }
 
         public void ShowFull()
@@ -562,6 +575,12 @@ namespace grapher
 
         private void OnIndexChanged(object sender, EventArgs e)
         {
+            var currentType = AccelerationType;
+            if (!_isSettingActiveValues && currentType == LUT && _previousAccelerationType != LUT)
+            {
+                LutApply.ApplyOption = LutApplyOptions.Sensitivity;
+            }
+            _previousAccelerationType = currentType;
             Layout(Beneath);
             ShowingDefault = false;
         }

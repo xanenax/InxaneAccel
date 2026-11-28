@@ -12,24 +12,25 @@ namespace grapher
         [STAThread]
         static void Main()
         {
-            var mutex = new System.Threading.Mutex(true, "InxaneAccelGrapher", out bool result);
-
-            if (!result)
+            using (var mutex = new System.Threading.Mutex(true, "InxaneAccelGrapher", out bool result))
             {
-                MessageBox.Show("Another instance of Inxane Accel is already running.");
-                return;
+                if (!result)
+                {
+                    MessageBox.Show("Another instance of Inxane Accel is already running.");
+                    return;
+                }
+
+                CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+                CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
+
+                AppDomain.CurrentDomain.UnhandledException += GlobalUnhandledExceptionHandler;
+
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                Application.Run(new RawAcceleration());
+
+                GC.KeepAlive(mutex);
             }
-
-            CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
-            CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
-
-            AppDomain.CurrentDomain.UnhandledException += GlobalUnhandledExceptionHandler;
-
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new RawAcceleration());
-
-            GC.KeepAlive(mutex);      
         }
 
         static void GlobalUnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)

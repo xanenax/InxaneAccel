@@ -105,11 +105,34 @@ namespace grapher
 
         private void SaveGUISettingsOnClose(Object sender, FormClosingEventArgs e)
         {
-            var guiSettings = Settings.MakeGUISettingsFromFields();
-            if (!Settings.GuiSettings.Equals(guiSettings))
+            try
             {
-                guiSettings.Save();
+                ChartRefresh?.Stop();
+                ChartRefresh?.Dispose();
+                ButtonTimer?.Stop();
+                ButtonTimer?.Dispose();
             }
+            catch
+            {
+                // Ignore timer disposal errors during shutdown.
+            }
+
+            MouseWatcher?.Unregister();
+
+            try
+            {
+                var guiSettings = Settings.MakeGUISettingsFromFields();
+                if (!Settings.GuiSettings.Equals(guiSettings))
+                {
+                    guiSettings.Save();
+                }
+            }
+            catch
+            {
+                // Ensure GUI settings serialization failure never skips driver deactivation.
+            }
+
+            Settings.DeactivateDriverOnExit();
         }
 
         public Profile MakeSettingsFromFields()
@@ -258,6 +281,12 @@ namespace grapher
             try
             {
                 var previewProfile = MakeSettingsFromFields();
+                bool activeVelocityX = Settings.ActiveProfile.argsX.mode == AccelMode.lut && Settings.ActiveProfile.argsX.gain;
+                bool activeVelocityY = Settings.ActiveProfile.argsY.mode == AccelMode.lut && Settings.ActiveProfile.argsY.gain;
+                previewProfile.argsX.gain = activeVelocityX;
+                previewProfile.argsY.gain = ApplyOptions.IsWhole || ApplyOptions.ByComponentVectorXYLock.Checked
+                    ? activeVelocityX
+                    : activeVelocityY;
                 previewProfile.inputSpeedArgs.inputSmoothHalflife = 0;
                 previewProfile.inputSpeedArgs.scaleSmoothHalflife = 0;
                 previewProfile.inputSpeedArgs.outputSmoothHalflife = 0;

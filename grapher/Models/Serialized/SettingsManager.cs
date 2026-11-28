@@ -68,6 +68,7 @@ namespace grapher.Models.Serialized
         private DriverConfig UserConfigField;
 
         private ManagedAccel ActiveAccelForGraphingField;
+        private readonly object _driverIoLock = new object();
 
         #endregion Fields
 
@@ -155,7 +156,33 @@ namespace grapher.Models.Serialized
         public void ResetDriver()
         {
             ActiveConfig = DriverConfig.GetDefault();
-            new Thread(() => DriverConfig.Deactivate()).Start();
+            var thread = new Thread(() =>
+            {
+                lock (_driverIoLock)
+                {
+                    DriverConfig.Deactivate();
+                }
+            })
+            {
+                IsBackground = true
+            };
+            thread.Start();
+        }
+
+        public void DeactivateDriverOnExit()
+        {
+            try
+            {
+                ActiveConfig = DriverConfig.GetDefault();
+                lock (_driverIoLock)
+                {
+                    DriverConfig.Deactivate();
+                }
+            }
+            catch
+            {
+                // Best-effort driver purge on shutdown; never block app exit.
+            }
         }
 
         public void UpdateFieldsFromGUISettings()
@@ -192,7 +219,18 @@ namespace grapher.Models.Serialized
                 ActiveConfig = settings;
                 File.WriteAllText(Constants.DefaultSettingsFileName, settings.ToJSON());
 
-                new Thread(() => ActiveConfig.Activate()).Start();
+                var configToActivate = ActiveConfig;
+                var thread = new Thread(() =>
+                {
+                    lock (_driverIoLock)
+                    {
+                        configToActivate.Activate();
+                    }
+                })
+                {
+                    IsBackground = true
+                };
+                thread.Start();
             }
 
             return errors == null;

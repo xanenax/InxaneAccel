@@ -805,6 +805,27 @@ namespace grapher.Models.Mouse
 
         }
 
+        public void Unregister()
+        {
+            try
+            {
+                Stopwatch?.Stop();
+                RAWINPUTDEVICE[] devices = new RAWINPUTDEVICE[1];
+                devices[0] = new RAWINPUTDEVICE
+                {
+                    UsagePage = HIDUsagePage.Generic,
+                    Usage = HIDUsage.Mouse,
+                    Flags = RawInputDeviceFlags.Remove,
+                    WindowHandle = IntPtr.Zero
+                };
+                RegisterRawInputDevices(devices, 1, Marshal.SizeOf(typeof(RAWINPUTDEVICE)));
+            }
+            catch
+            {
+                // Best-effort raw input cleanup on shutdown.
+            }
+        }
+
         #endregion Methods
     }
 }

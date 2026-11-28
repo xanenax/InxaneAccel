@@ -38,8 +38,6 @@ namespace grapher
 
         #endregion Constructors
 
-        private const double VerticalMargin = 0.1;
-
         #region Properties
 
         public Chart ChartX { get; }
@@ -460,15 +458,56 @@ namespace grapher
             ApplySpanYRange(ChartY.ChartAreas[0], minY, maxY);
         }
 
+        private static double PickCleanYStep(double rawStep)
+        {
+            if (rawStep <= 0 || double.IsNaN(rawStep) || double.IsInfinity(rawStep))
+            {
+                return 0.25;
+            }
+
+            double magnitude = Math.Pow(10, Math.Floor(Math.Log10(rawStep)));
+            double norm = rawStep / magnitude;
+            if (norm <= 1.0) return 1.0 * magnitude;
+            if (norm <= 2.0) return 2.0 * magnitude;
+            if (norm <= 2.5) return 2.5 * magnitude;
+            if (norm <= 5.0) return 5.0 * magnitude;
+            return 10.0 * magnitude;
+        }
+
         private static void ApplySpanYRange(ChartArea area, double min, double max)
         {
             double span = max - min;
-            double pad = Math.Max(span * 0.15, Math.Max(0.08, Math.Abs(min) * VerticalMargin));
-            double axisMin = min - pad;
-            double axisMax = max + pad;
+            double margin = span > 1e-6
+                ? Math.Max(span * 0.08, Math.Min(0.04, span * 0.12))
+                : Math.Max(0.10, Math.Abs(min) * 0.12);
+
+            double targetMin = min >= 0 ? Math.Max(0.0, min - margin) : (min - margin);
+            double targetMax = max + margin;
+            double step = Math.Round(PickCleanYStep((targetMax - targetMin) / 4.0), 6);
+
+            double axisMin = Math.Round(Math.Floor((targetMin + 1e-9) / step) * step, 6);
+            if (min >= 0 && axisMin < 0)
+            {
+                axisMin = 0.0;
+            }
+            double axisMax = Math.Round(Math.Ceiling((targetMax - 1e-9) / step) * step, 6);
+            if (axisMax <= axisMin)
+            {
+                axisMax = Math.Round(axisMin + step * 4.0, 6);
+            }
+
+            area.AxisY.IsMarginVisible = false;
             area.AxisY.Minimum = axisMin;
-            area.AxisY.Maximum = axisMax + 1e-4;
-            area.AxisY.Interval = (axisMax - axisMin) / 4.0;
+            area.AxisY.Maximum = axisMax;
+            area.AxisY.Interval = step;
+            area.AxisY.MajorGrid.Interval = step;
+            area.AxisY.MajorGrid.IntervalOffset = 0.0;
+            area.AxisY.LabelStyle.Interval = step;
+            area.AxisY.LabelStyle.IntervalOffset = 0.0;
+            area.AxisY.LabelStyle.IsEndLabelVisible = true;
+            area.AxisY.MajorTickMark.Interval = step;
+            area.AxisY.MajorTickMark.IntervalOffset = 0.0;
+            area.AxisY.LabelStyle.Format = step < 0.05 ? "0.###" : "0.00";
         }
 
         public void SetCombined()

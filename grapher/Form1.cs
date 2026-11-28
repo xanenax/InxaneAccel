@@ -849,9 +849,18 @@ namespace grapher
 
         private void RawAcceleration_FormClosing(object sender, FormClosingEventArgs e)
         {
-            Properties.Settings.Default.Size = Size;
-            Properties.Settings.Default.Location = Location;
-            Properties.Settings.Default.Save();
+            if (WindowState == FormWindowState.Normal)
+            {
+                Properties.Settings.Default.Size = Size;
+                Properties.Settings.Default.Location = Location;
+                Properties.Settings.Default.Save();
+            }
+        }
+
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            base.OnFormClosed(e);
+            Application.Exit();
         }
 
         private void RawAcceleration_Shown(object sender, EventArgs e)

@@ -13,6 +13,8 @@ namespace grapher.Models.Options
         public const string LutPointsFileName = "lut_points.txt";
         public const string PresetOriginal = "Original";
         public const string PresetCleanBump = "CleanBump";
+        public const double TargetStartY = 1.0;
+        public const double TargetEndY = 1.75;
 
         public static string ActivePreset { get; private set; } = PresetOriginal;
 
@@ -20,9 +22,9 @@ namespace grapher.Models.Options
 
         public static string CleanBumpLutText { get; private set; } = string.Empty;
 
-        public static double OriginalMinY { get; private set; } = 0.90575236;
+        public static double OriginalMinY { get; private set; } = 0.967887;
 
-        public static double OriginalMaxY { get; private set; } = 1.78540409;
+        public static double OriginalMaxY { get; private set; } = TargetEndY;
 
         public static void SetActivePreset(string preset)
         {
@@ -79,6 +81,7 @@ namespace grapher.Models.Options
 
                 if (!string.IsNullOrWhiteSpace(original))
                 {
+                    original = NormalizeOriginalLut(original);
                     File.WriteAllText(backupPath, original, utf8NoBom);
                 }
             }
@@ -90,7 +93,8 @@ namespace grapher.Models.Options
                 }
             }
 
-            OriginalLutText = original ?? string.Empty;
+            string normalizedOriginal = NormalizeOriginalLut(original ?? string.Empty);
+            OriginalLutText = normalizedOriginal;
             var origPts = ParsePoints(OriginalLutText);
             if (origPts.Count >= 2)
             {
@@ -122,6 +126,52 @@ namespace grapher.Models.Options
             return minY < y0 - 0.005;
         }
 
+        public static string NormalizeOriginalLut(string rawLut)
+        {
+            var pts = ParsePoints(rawLut);
+            if (pts.Count < 2)
+            {
+                return rawLut ?? string.Empty;
+            }
+
+            int n = pts.Count;
+            double srcStart = pts[0].Y;
+            double srcEnd = pts[n - 1].Y;
+            double srcSpan = srcEnd - srcStart;
+            if (Math.Abs(srcSpan) < 1e-9)
+            {
+                return rawLut ?? string.Empty;
+            }
+
+            double scale = (TargetEndY - TargetStartY) / srcSpan;
+            var sb = new StringBuilder(n * 22);
+            for (int i = 0; i < n; i++)
+            {
+                double y;
+                if (i == 0)
+                {
+                    y = TargetStartY;
+                }
+                else if (i == n - 1)
+                {
+                    y = TargetEndY;
+                }
+                else
+                {
+                    y = TargetStartY + (pts[i].Y - srcStart) * scale;
+                    y = Math.Max(0.01, y);
+                }
+
+                sb.AppendFormat(
+                    CultureInfo.InvariantCulture,
+                    "{0:0.#######},{1:0.########};",
+                    pts[i].X,
+                    y);
+            }
+
+            return sb.ToString();
+        }
+
         public static string BuildCleanBumpLut(string originalLut)
         {
             var pts = ParsePoints(originalLut);
@@ -131,8 +181,8 @@ namespace grapher.Models.Options
             }
 
             int n = pts.Count;
-            double yStart = pts[0].Y;
-            double yEnd = pts[n - 1].Y;
+            const double yStart = TargetStartY;
+            const double yEnd = TargetEndY;
             const double xMid = 60.0;
             const double halfSpan = 18.0; // smooth transition window [42..78]
             const double steepness = 3.2; // straight, decisive center ramp with smooth rounded knees
